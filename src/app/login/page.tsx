@@ -7,7 +7,9 @@ export default function Home() {
     return (
         <div>
             <SignedOut>
-              <SignInButton mode="modal"/>
+              <SignInButton mode="modal">
+                <button className="bg-blue-700">Sign In</button>
+              </SignInButton>
             </SignedOut>
             <SignedIn>
               <UserButton />
