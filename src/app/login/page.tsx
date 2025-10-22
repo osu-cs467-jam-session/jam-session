@@ -1,7 +1,9 @@
 // Login Component
+// To test: run npm dev > http://localhost:3000/login
+
 'use client'
 
-import { SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
+import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
 
 export default function Home() {
     return (
