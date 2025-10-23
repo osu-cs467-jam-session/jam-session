@@ -3,7 +3,8 @@
 // lib/mongoose.ts
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
+const MONGODB_URI: string = process.env.MONGODB_URI as string;
+const DB_NAME = process.env.DB_NAME as string;
 
 if (!MONGODB_URI) {
     throw new Error("⚠️ Please define the MONGODB_URI environment variable inside .env.local");
@@ -26,7 +27,7 @@ export async function connectToDatabase() {
 
     if (!cached.promise) {
         cached.promise = mongoose.connect(MONGODB_URI, {
-            dbName: "mydatabase",
+            dbName: DB_NAME,
             bufferCommands: false,
         }).then((mongoose) => mongoose);
     }
