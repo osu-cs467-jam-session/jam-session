@@ -1,6 +1,7 @@
 // Code was adapted from GPT-5 mini model on 10/22/2025
 
 import mongoose from "mongoose";
+import { convertStringIdToObjectId } from "./helper_functions";
 
 // User shape used by the app
 export interface IUser {
@@ -11,17 +12,6 @@ export interface IUser {
     preferredGenre?: string;
     location?: string;
     contact?: string;
-}
-
-function convertStringIdToObjectId(id: string): mongoose.Types.ObjectId {
-    // Convert string data type to ObjectId Mongoose type
-    try {
-        return new mongoose.Types.ObjectId(id);
-    }
-    catch (error) {
-        console.error(`Invalid ObjectId string: ${id}`, error);
-        throw new Error("Invalid ObjectId string");
-    }
 }
 
 // User schema (use default ObjectId _id provided by MongoDB)
@@ -41,18 +31,11 @@ const UserModel = mongoose.models.User as mongoose.Model<IUser>
     || mongoose.model<IUser>("User", UserSchema);
 
 // Create Operations
-export async function createUser(data: {
-    username: string;
-    password: string;
-    instrumentsArray: string[];
-    preferredGenre?: string;
-    location?: string;
-    contact?: string;
-}): Promise<IUser> {
+export async function createUser(data: IUser): Promise<IUser> {
     try {
         const created = await UserModel.create({
             username: data.username,
-            hashedPassword: data.password,
+            hashedPassword: data.hashedPassword,
             instrumentsArray: data.instrumentsArray,
             preferredGenre: data.preferredGenre,
             location: data.location,
@@ -72,7 +55,7 @@ export async function createUser(data: {
 export async function getUsers(): Promise<IUser[]> {
     try {
         const users = await UserModel.find().lean();
-        return users;
+        return users as unknown as IUser[];
     }
     catch (error) {
         console.error("Error fetching users:", error);
@@ -85,7 +68,7 @@ export async function getUserById(userId: string): Promise<IUser | null> {
         // Convert string to ObjectId type
         const id = convertStringIdToObjectId(userId);
         const user = await UserModel.findOne({ id }).lean();
-        return user;
+        return user as unknown as IUser | null;
     }
     catch (error) {
         console.error(`Error fetching user by id (${userId}):`, error);
