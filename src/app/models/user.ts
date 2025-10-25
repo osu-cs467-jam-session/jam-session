@@ -26,24 +26,10 @@ const UserSchema = new mongoose.Schema<IUser>(
 );
 
 // Use existing model if it exists (prevents OverwriteModelError during hot reload)
-const UserModel = mongoose.models.User || mongoose.model("User", UserSchema);
+const UserModel = mongoose.models.User as mongoose.Model<IUser>
+    || mongoose.model<IUser>("User", UserSchema);
 
 // Create Operations
-
-export async function getUsers(): Promise<IUser[]> {
-    const res = await UserModel.find().lean().exec();
-    return (res as unknown) as IUser[];
-}
-
-export async function getUserById(id: string): Promise<IUser | null> {
-    const res = await UserModel.findById(id).lean().exec();
-    return (res as unknown) as IUser | null;
-}
-
-export async function getUserByUsername(username: string): Promise<IUser | null> {
-    const res = await UserModel.findOne({ username }).lean().exec();
-    return (res as unknown) as IUser | null;
-}
 
 export async function createUser(data: {
     username: string;
@@ -67,20 +53,41 @@ export async function createUser(data: {
 }
 
 // Read Operations
+export async function getUsers(): Promise<IUser[]> {
+    try {
+        const users = await UserModel.find().lean();
+        return users;
+    }
+    catch (error) {
+        console.error("Error fetching users:", error);
+        throw new Error("Failed to fetch users");
+    }
+}
+
+export async function getUserByUsername(username: string): Promise<IUser | null> {
+    try {
+        const user = await UserModel.findOne({ username }).lean();
+        return user;
+    }
+    catch (error) {
+        console.error(`Error fetching user by username (${username}):`, error);
+        throw new Error("Failed to fetch user by username");
+    }
+}
+
+// Update Operations
 
 export async function updateUser(id: string, update: Partial<IUser>): Promise<IUser | null> {
     const updated = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean().exec();
     return (updated as unknown) as IUser | null;
 }
 
+// Delete Operations
+
 export async function deleteUser(id: string): Promise<IUser | null> {
     const res = await UserModel.findByIdAndDelete(id).lean().exec();
     return (res as unknown) as IUser | null;
 }
 
-// Update Operations
-
-
-// Delete Operations
 
 export default UserModel;
