@@ -13,6 +13,17 @@ export interface IUser {
     contact?: string;
 }
 
+function convertStringIdToObjectId(id: string): mongoose.Types.ObjectId {
+    // Convert string data type to ObjectId Mongoose type
+    try {
+        return new mongoose.Types.ObjectId(id);
+    }
+    catch (error) {
+        console.error(`Invalid ObjectId string: ${id}`, error);
+        throw new Error("Invalid ObjectId string");
+    }
+}
+
 // User schema (use default ObjectId _id provided by MongoDB)
 const UserSchema = new mongoose.Schema<IUser>(
     {
@@ -30,7 +41,6 @@ const UserModel = mongoose.models.User as mongoose.Model<IUser>
     || mongoose.model<IUser>("User", UserSchema);
 
 // Create Operations
-
 export async function createUser(data: {
     username: string;
     password: string;
@@ -39,17 +49,23 @@ export async function createUser(data: {
     location?: string;
     contact?: string;
 }): Promise<IUser> {
-    // Expect the caller to pass plaintext password; hashing should be done before saving.
-    const created = await UserModel.create({
-        username: data.username,
-        hashedPassword: data.password,
-        instrumentsArray: data.instrumentsArray,
-        preferredGenre: data.preferredGenre,
-        location: data.location,
-        contact: data.contact,
-    });
+    try {
+        const created = await UserModel.create({
+            username: data.username,
+            hashedPassword: data.password,
+            instrumentsArray: data.instrumentsArray,
+            preferredGenre: data.preferredGenre,
+            location: data.location,
+            contact: data.contact,
+        });
 
-    return (created.toObject && created.toObject()) as unknown as IUser;
+        return (created.toObject && created.toObject()) as unknown as IUser;
+    }
+    catch (error) {
+        console.error("Error creating user:", error);
+        throw new Error("Failed to create user");
+    }
+
 }
 
 // Read Operations
@@ -64,29 +80,43 @@ export async function getUsers(): Promise<IUser[]> {
     }
 }
 
-export async function getUserByUsername(username: string): Promise<IUser | null> {
+export async function getUserById(userId: string): Promise<IUser | null> {
     try {
-        const user = await UserModel.findOne({ username }).lean();
+        // Convert string to ObjectId type
+        const id = convertStringIdToObjectId(userId);
+        const user = await UserModel.findOne({ id }).lean();
         return user;
     }
     catch (error) {
-        console.error(`Error fetching user by username (${username}):`, error);
+        console.error(`Error fetching user by id (${userId}):`, error);
         throw new Error("Failed to fetch user by username");
     }
 }
 
 // Update Operations
-
-export async function updateUser(id: string, update: Partial<IUser>): Promise<IUser | null> {
-    const updated = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean().exec();
-    return (updated as unknown) as IUser | null;
+export async function updateUser(userId: string, update: Partial<IUser>): Promise<IUser | null> {
+    try {
+        const id = convertStringIdToObjectId(userId);
+        const updated = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
+        return (updated as unknown) as IUser | null;
+    }
+    catch (error) {
+        console.error(`Error updating user (${userId}):`, error);
+        throw new Error("Failed to update user");
+    }
 }
 
 // Delete Operations
-
-export async function deleteUser(id: string): Promise<IUser | null> {
-    const res = await UserModel.findByIdAndDelete(id).lean().exec();
-    return (res as unknown) as IUser | null;
+export async function deleteUser(userId: string): Promise<IUser | null> {
+    try {
+        const id = convertStringIdToObjectId(userId);
+        const user = await UserModel.findByIdAndDelete(id).lean();
+        return (user as unknown) as IUser | null;
+    }
+    catch (error) {
+        console.error(`Error deleting user (${userId}):`, error);
+        throw new Error("Failed to delete user");
+    }
 }
 
 
