@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import NavBar from "@/components/ui/NavBar";
 
 
 const geistSans = Geist({
@@ -29,10 +30,25 @@ export default function RootLayout({
     <ClerkProvider>
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider>
-          attribute
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          >
+            <div className="min-h-screen">
+              <NavBar/>
+              <main className="py-8">
+                {/* add container here for centering */}
+                <div className="max-w-7xl mx-auto px-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="hidden lg:block lg:col-span-3">Sidebar</div>
+                    <div className="lg:col-span-9">{children}</div>
+                    </div>
+                </div>
+              </main>
+            </div>
         </ThemeProvider>
-        {children}
       </body>
     </html>
     </ClerkProvider>
