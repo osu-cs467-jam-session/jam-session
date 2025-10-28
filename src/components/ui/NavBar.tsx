@@ -1,4 +1,3 @@
-import React from 'react'
 import Link from "next/link";
 import DesktopNavbar from "./DesktopNavbar";
 import MobileNavbar from "./MobileNavbar";
@@ -12,9 +11,8 @@ function NavBar() {
               Jam Session
             </Link>
           </div>
-
-          <DesktopNavbar />
-          <MobileNavbar />
+          <DesktopNavbar/>
+          <MobileNavbar/>
         </div>
       </div>
   </nav>
