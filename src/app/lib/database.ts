@@ -14,11 +14,23 @@ if (!MONGODB_URI) {
  * Global is used here to prevent multiple connections in dev mode.
  * In production, this isn't needed because Next.js won't hot reload.
  */
-let cached = (global as any).mongoose;
 
-if (!cached) {
-    cached = (global as any).mongoose = { conn: null, promise: null };
+
+interface MongooseCache {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
 }
+
+declare global {
+    var mongoose: MongooseCache | undefined;
+}
+
+const cached: MongooseCache = global.mongoose ?? {
+    conn: null,
+    promise: null,
+};
+
+global.mongoose = cached;
 
 export async function connectToDatabase() {
     if (cached.conn) {
