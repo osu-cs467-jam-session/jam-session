@@ -3,6 +3,7 @@
 
 'use client'
 
+import { Button } from "@/components/ui/button";
 import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
 
 export default function Home() {
@@ -10,7 +11,7 @@ export default function Home() {
         <div>
             <SignedOut>
               <SignInButton mode="modal">
-                <button className="bg-blue-700">Sign In</button>
+                <Button>Sign In</Button>
               </SignInButton>
             </SignedOut>
             <SignedIn>
