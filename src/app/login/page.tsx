@@ -1,5 +1,5 @@
 // Login Component
-// To test: run npm dev > http://localhost:3000/login
+// To test: npm run dev > http://localhost:3000/login
 
 'use client'
 
@@ -9,14 +9,7 @@ import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
 export default function Home() {
     return (
         <div>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <Button>Sign In</Button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
+            <h1>Home Page</h1>
         </div>
     );
 }
