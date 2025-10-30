@@ -1,7 +1,10 @@
+// import everything from React library
 import * as React from "react"
+// Slot is a utility from Radix UI that lets this component act as a wrapper for another element
 import { Slot } from "@radix-ui/react-slot"
+// cva (Class Variance Authority) helps define reusable class name variants
 import { cva, type VariantProps } from "class-variance-authority"
-
+// cn is a utility function for conditionally joining class names
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
