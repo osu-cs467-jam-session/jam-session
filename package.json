@@ -6,10 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.2",
+    "@clerk/nextjs": "^6.34.0",
     "mongoose": "^8.19.2",
     "next": "15.5.5",
     "react": "19.1.0",
@@ -24,6 +25,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.5",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.3"
   }
 }

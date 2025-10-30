@@ -1,12 +1,96 @@
-import mongoose, { Schema, models } from "mongoose";
 
-const PostSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  date: { type: Date, default: Date.now },
-  title: { type: String, required: true },
-  body: { type: String, required: true },
-  tags: [{ type: String }]
-}, { timestamps: true });
+import mongoose from "mongoose";
+import { convertStringIdToObjectId } from "./helper_functions";
 
-const Post = models.Post || mongoose.model("Post", PostSchema);
-export default Post;
+// Define Types
+
+export interface IPost {
+    _id: mongoose.Types.ObjectId; // MongoDB ObjectId
+    userId: mongoose.Types.ObjectId; // Reference to User's ObjectId
+    title: string;
+    body: string;
+    date?: Date;
+    tags?: string[];
+}
+
+// Post schema
+const PostSchema = new mongoose.Schema<IPost>(
+    {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        title: { type: String, required: true },
+        body: { type: String, required: true },
+        date: { type: Date, default: Date.now },
+        tags: { type: [String], default: [] },
+    }
+);
+
+// Use existing model if it exists (prevents OverwriteModelError during hot reload)
+const PostModel = mongoose.models.Post as mongoose.Model<IPost>
+    || mongoose.model<IPost>("Post", PostSchema);
+
+
+// Create Operations
+export async function createPost(data: IPost): Promise<IPost> {
+    try {
+        const created = await PostModel.create(data);
+        return created;
+    }
+    catch (error) {
+        console.error("Error creating post:", error);
+        throw new Error("Failed to create post");
+    }
+}
+
+// Read Operations
+
+export async function getPosts(): Promise<IPost[]> {
+    try {
+        const posts = await PostModel.find().lean();
+        return posts as unknown as IPost[];
+    }
+    catch (error) {
+        console.error("Error fetching posts:", error);
+        throw new Error("Failed to fetch posts");
+    }
+}
+
+export async function getPostById(id: string): Promise<IPost | null> {
+    try {
+        const objectId = convertStringIdToObjectId(id);
+        const post = await PostModel.findById(objectId).lean();
+        return post;
+    }
+    catch (error) {
+        console.error("Error fetching post by ID:", error);
+        throw new Error("Failed to fetch post by ID");
+    }
+}
+
+
+// Update Operations
+
+export async function updatePost(id: string, data: Partial<IPost>): Promise<IPost | null> {
+    try {
+        const objectId = convertStringIdToObjectId(id);
+        const updated = await PostModel.findByIdAndUpdate(objectId, data, { new: true }).lean();
+        return updated;
+    }
+    catch (error) {
+        console.error("Error updating post:", error);
+        throw new Error("Failed to update post");
+    }
+}
+
+// Delete Operations
+
+export async function deletePost(id: string): Promise<IPost | null> {
+    try {
+        const objectId = convertStringIdToObjectId(id);
+        const deleted = await PostModel.findByIdAndDelete(objectId).lean();
+        return deleted;
+    }
+    catch (error) {
+        console.error("Error deleting post:", error);
+        throw new Error("Failed to delete post");
+    }
+}
