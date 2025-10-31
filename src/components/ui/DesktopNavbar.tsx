@@ -5,17 +5,17 @@ import Link from "next/link"; // used for navigation linking
 import { currentUser } from "@clerk/nextjs/server";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 
-// Icons from React library
+// icons from React library
 import { BellIcon, HomeIcon, UserIcon } from "lucide-react";
 
-// Custom Button component
+// custom Button component
 import { Button } from "@/components/ui/button";
 
 // ***************************************************************
 
-// Define component for navigation on desktop
+// define component for navigation on desktop
 async function DesktopNavbar() {
-  // Get currently logged-in user using Clerk’s server-side helper
+  // get currently logged-in user using Clerk’s server-side helper
   const user = await currentUser();
 
   return (
@@ -54,7 +54,7 @@ async function DesktopNavbar() {
           <UserButton/>
         </>
       ) : (
-        // If no user signed in, show Sign In button
+        // if no user signed in, show Sign In button
         // TO DO: change cursor on hover
         <SignInButton mode="modal">
           <Button variant="default">Sign In</Button>
