@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { useAuth, SignInButton, SignOutButton } from "@clerk/nextjs";
 
 import {
