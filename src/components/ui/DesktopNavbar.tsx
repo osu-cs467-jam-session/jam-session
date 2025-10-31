@@ -1,5 +1,5 @@
 // Next.js
-import Link from "next/link"; // used for navigation linking
+import Link from "next/link"; // used for client-side navigation between pages
 
 // Clerk (authentication service)
 import { currentUser } from "@clerk/nextjs/server";
