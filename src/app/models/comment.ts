@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { convertStringIdToObjectId } from "./helper_functions";
 
 // Define Types
-export interface IAudioUpload {
+export interface IComment {
     _id: mongoose.Types.ObjectId; // MongoDB ObjectId
     userId: mongoose.Types.ObjectId; // Reference to User's ObjectId
     parentType: "Post" | "AudioUpload"; // Type of the parent entity
@@ -12,7 +12,7 @@ export interface IAudioUpload {
 }
 
 // Comment schema
-const CommentSchema = new mongoose.Schema<IAudioUpload>(
+const CommentSchema = new mongoose.Schema<IComment>(
     {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
         parentType: { type: String, enum: ["Post", "AudioUpload"], required: true },
@@ -23,11 +23,11 @@ const CommentSchema = new mongoose.Schema<IAudioUpload>(
 );
 
 // Use existing model if it exists (prevents OverwriteModelError during hot reload)
-const CommentModel = mongoose.models.Comment as mongoose.Model<IAudioUpload>
-    || mongoose.model<IAudioUpload>("Comment", CommentSchema);
+const CommentModel = mongoose.models.Comment as mongoose.Model<IComment>
+    || mongoose.model<IComment>("Comment", CommentSchema);
 
 // Create Operations
-export async function createComment(data: IAudioUpload): Promise<IAudioUpload> {
+export async function createComment(data: IComment): Promise<IComment> {
     try {
         const created = await CommentModel.create(data);
         return created;
@@ -39,10 +39,10 @@ export async function createComment(data: IAudioUpload): Promise<IAudioUpload> {
 }
 
 // Read Operations
-export async function getComments(): Promise<IAudioUpload[]> {
+export async function getComments(): Promise<IComment[]> {
     try {
         const comments = await CommentModel.find().lean();
-        return comments as unknown as IAudioUpload[];
+        return comments as unknown as IComment[];
     }
     catch (error) {
         console.error("Error fetching comments:", error);
@@ -50,11 +50,11 @@ export async function getComments(): Promise<IAudioUpload[]> {
     }
 }
 
-export async function getCommentById(id: string): Promise<IAudioUpload | null> {
+export async function getCommentById(id: string): Promise<IComment | null> {
     try {
         const objectId = convertStringIdToObjectId(id);
         const comment = await CommentModel.findById(objectId).lean();
-        return comment as unknown as IAudioUpload | null;
+        return comment as unknown as IComment | null;
     }
     catch (error) {
         console.error("Error fetching comment by ID:", error);
@@ -63,11 +63,11 @@ export async function getCommentById(id: string): Promise<IAudioUpload | null> {
 }
 
 // Update Operations
-export async function updateComment(id: string, data: Partial<IAudioUpload>): Promise<IAudioUpload | null> {
+export async function updateComment(id: string, data: Partial<IComment>): Promise<IComment | null> {
     try {
         const objectId = convertStringIdToObjectId(id);
         const updated = await CommentModel.findByIdAndUpdate(objectId, data, { new: true }).lean();
-        return updated as unknown as IAudioUpload | null;
+        return updated as unknown as IComment | null;
     }
     catch (error) {
         console.error("Error updating comment:", error);
