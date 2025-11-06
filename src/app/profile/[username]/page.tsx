@@ -10,6 +10,7 @@ async function ProfilePage({ params }: { params: { username: string } }) {
     // log route parameters to console for debugging purposes
     console.log("params:", params);
     // render placeholder for profile page
+    await new Promise((resolve) => setTimeout(resolve, 3000))
     return <div>Profile</div>;
 }
 export default ProfilePage;
