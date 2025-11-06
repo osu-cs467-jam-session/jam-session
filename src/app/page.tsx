@@ -1,3 +1,7 @@
+// TO DO:
+// Might need to disable or delete this file
+// Displays generic Next.js app
+
 import Image from "next/image";
 
 export default function Home() {
