@@ -76,6 +76,24 @@ export async function getUserById(userId: string): Promise<IUser | null> {
     }
 }
 
+/**
+ * Fetch a user by username.
+ * 
+ * @param username - Username to search for.
+ * @returns User object or null if not found.
+ */
+export async function getUserByUsername(username: string): Promise<IUser | null> {
+  try {
+    // Find user and return as plain object
+    const user = await UserModel.findOne({ username }).lean();
+    return user as unknown as IUser | null;
+  } catch (error) {
+    // Log error and rethrow
+    console.error(`Error fetching user by username (${username}):`, error);
+    throw new Error("Failed to fetch user by username");
+  }
+}
+
 // Update Operations
 export async function updateUser(userId: string, update: Partial<IUser>): Promise<IUser | null> {
     try {
