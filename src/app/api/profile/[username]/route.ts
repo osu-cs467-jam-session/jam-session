@@ -1,35 +1,25 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/app/lib/database";
-import { getUserByUsername } from "@/app/models/user";
+import { getUserByUsername } from "@/app/lib/database";
 
-/** GET: Fetch user profile by username */
+// API route to fetch user by their username
 export async function GET(
-  req: Request,
-  context: { params: { username: string } }
+  _req: Request,
+  context: { params: { username: string } } // dynamic route parameters
 ) {
-  await connectToDatabase();
+  // extract username from route parameters
+  const { username } = await context.params;
 
-  try {
-    // Extract username from dynamic route
-    const { username } = context.params;
+  // retrieve user from database
+  const user = await getUserByUsername(username);
 
-    const user = await getUserByUsername(username);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    // Exclude hashed password
-    const { hashedPassword, ...safeUser } = user;
-
-    return NextResponse.json({ success: true, data: safeUser });
-  } catch (error) {
-    console.error("GET /api/profile error:", error);
+  // if user is not found, return 404 response with error message
+  if (!user) {
     return NextResponse.json(
-      { success: false, error: "Failed to fetch user" },
-      { status: 500 }
+      { success: false, error: "User not found" },
+      { status: 404 }
     );
   }
+
+  // return user data as JSON
+  return NextResponse.json(user);
 }
