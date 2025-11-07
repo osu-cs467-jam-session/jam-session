@@ -1,17 +1,43 @@
-// import everything from React library
-import React from 'react'
+import ProfileCard from "@/components/ui/ProfileCard";
 
-/*
-Define asynchronous React Server Component named ProfilePage.
-Receives 'params' object as a prop from Next.js routing,
-where 'params.username' comes from dynamic route [username]
-*/
-async function ProfilePage({ params }: { params: { username: string } }) {
-    // log route parameters to console for debugging purposes
-    console.log("params:", params);
-    // Test for loading.tsx; Can remove
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-    // render placeholder for profile page
-    return <div>Profile</div>;
+interface ProfilePageProps {
+  params: { username: string }; // dynamic route parameter
 }
-export default ProfilePage;
+
+// Profile page for a specific username
+// Next.js 15.5+ requires `params` to be awaited when used dynamically
+export default async function ProfilePage({ params }: ProfilePageProps) {
+  // await the params object to extract the username
+  const { username } = await params;
+
+  // fetch user data from API route; no caching to always get fresh data
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/profile/${username}`,
+    { cache: "no-store" }
+  );
+
+  // if user is not found, show simple message centered on the page
+  if (!res.ok) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <p className="text-gray-600 text-lg">User not found</p>
+      </div>
+    );
+  }
+
+  // parse the JSON response
+  const user = await res.json();
+
+  // render ProfileCard
+  return (
+    <div className="flex justify-center">
+      <ProfileCard
+        username={user.username}
+        instrumentsArray={user.instrumentsArray || []} // fallback if empty
+        location={user.location}
+        preferredGenre={user.preferredGenre}
+        contact={user.contact}
+      />
+    </div>
+  );
+}
