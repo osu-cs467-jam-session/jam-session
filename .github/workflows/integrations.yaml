@@ -15,15 +15,18 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Lint Code
-        run: echo "Linting code..."
-        run: npm run lint
+        run: | 
+          echo "Linting code..."
+          npm run lint
 
       - name: Check Types
-        run: echo "Checking types..."
-        run: npm run type-check
+        run: |
+          echo "Checking types..."
+          npm run type-check
 
       - name: Run Tests
-        run: echo "Running tests..."
-        run: npm run test
+        run: |
+          echo "Running tests..."
+          npm run test
 
 
