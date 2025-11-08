@@ -32,16 +32,17 @@ export default function PostForm({
     try {
       await onSubmit?.({ text: text.trim() })
       setText('') // clear text field
-    } catch (err: any) {
-      setError(err?.message ?? 'Failed to submit') // error message of failed submission
+    } catch (err) {
+      console.log('Post submission error:', err)
+      setError('Failed to submit') // error message of failed submission
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}> // form component
-      <label htmlFor="post-text" className="sr-only">Create post</label> // label for the text box
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <label htmlFor="post-text" className="sr-only">Create post</label>
       <textarea
         id="post-text"
         value={text}

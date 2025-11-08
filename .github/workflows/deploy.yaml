@@ -1,0 +1,29 @@
+name: CI Check
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  pre-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+      - uses: actions/checkout@v2
+
+      - name: Lint Code
+        run: echo "Linting code..."
+        run: npm run lint
+
+      - name: Check Types
+        run: echo "Checking types..."
+        run: npm run type-check
+
+      - name: Run Tests
+        run: echo "Running tests..."
+        run: npm run test
+
+

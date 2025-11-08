@@ -12,8 +12,18 @@ import {
   getUserById,
   updateUser,
   deleteUser,
+  IUser,
 } from "@/app/models/user";
 import mongoose from "mongoose";
+
+export type SafeUser = Omit<IUser, "hashedPassword">;
+
+function excludeHashedPassword(user: IUser): SafeUser {
+  const { hashedPassword, ...rest } = user;
+  console.log("Excluding hashedPassword:", !!hashedPassword);
+  return rest;
+}
+
 
 /** GET: Fetch users: all or by id */
 export async function GET(request: Request) {
@@ -38,13 +48,18 @@ export async function GET(request: Request) {
         );
 
       // Exclude password hash before returning
-      const { hashedPassword, ...safeUser } = user;
+      // const { hashedPassword, ...safeUser } = user;
+      const safeUser = excludeHashedPassword(user);
       return NextResponse.json({ success: true, data: safeUser });
     }
 
     // Get all users w/ hidden password
     const users = await getUsers();
-    const safeUsers = users.map(({ hashedPassword, ...rest }) => rest);
+    const safeUsers = users.map(({ hashedPassword, ...rest }) => {
+      console.log("Excluding hashedPassword from user:", !!hashedPassword);
+      return rest;
+    }
+    );
     return NextResponse.json({ success: true, data: safeUsers });
   } catch (error) {
     console.error("GET /api/users error:", error);
@@ -74,7 +89,8 @@ export async function POST(request: Request) {
     });
 
     // Hide hashed password
-    const { hashedPassword, ...safeUser } = newUser;
+    // const { hashedPassword, ...safeUser } = newUser;
+    const safeUser = excludeHashedPassword(newUser);
     return NextResponse.json({ success: true, data: safeUser }, { status: 201 });
   } catch (error) {
     console.error("POST /api/users error:", error);
@@ -107,7 +123,8 @@ export async function PUT(request: Request) {
       );
 
     // Exclude hashed password
-    const { hashedPassword, ...safeUser } = updatedUser;
+    // const { hashedPassword, ...safeUser } = updatedUser;
+    const safeUser = excludeHashedPassword(updatedUser);
     return NextResponse.json({ success: true, data: safeUser });
   } catch (error) {
     console.error("PUT /api/users error:", error);
@@ -141,7 +158,8 @@ export async function DELETE(request: Request) {
       );
 
     // Exclude hashed passwrd
-    const { hashedPassword, ...safeUser } = deletedUser;
+    // const { hashedPassword, ...safeUser } = deletedUser;
+    const safeUser = excludeHashedPassword(deletedUser);
     return NextResponse.json({ success: true, data: safeUser });
   } catch (error) {
     console.error("DELETE /api/users error:", error);
