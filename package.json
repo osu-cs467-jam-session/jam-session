@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "build:ci": "next build --webpack",
+    "build:ci":  "NEXT_PRIVATE_BUILD_WORKER=webpack next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",

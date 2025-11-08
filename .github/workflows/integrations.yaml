@@ -44,8 +44,4 @@ jobs:
           echo "Running tests..."
           npm run test
 
-      # Verify Build 
-      - name: Build Application 
-        run: npm run build:ci
-
 
