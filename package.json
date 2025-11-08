@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "build:ci": "next build --no-turbopack",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
