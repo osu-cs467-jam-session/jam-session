@@ -8,25 +8,44 @@ on:
       - main
 
 jobs:
-  pre-deploy:
+  CI:
     runs-on: ubuntu-latest
     steps:
+      # Checkout Source Code
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      # Setup Node.js with caching for faster installs 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20   # Used with Next 15
+          cache: 'npm'
+
+      # Install dependencies (includes devDependencies)
+      - name: Install dependencies
+        run: npm ci
+        
+      #Lint
       - name: Lint Code
         run: | 
           echo "Linting code..."
           npm run lint
-
+          
+      # Type Check
       - name: Check Types
         run: |
           echo "Checking types..."
           npm run type-check
 
+      # Run Tests 
       - name: Run Tests
         run: |
           echo "Running tests..."
           npm run test
+
+      # Verify Build 
+      - name: Build Application 
+        run: npm run build 
 
 
