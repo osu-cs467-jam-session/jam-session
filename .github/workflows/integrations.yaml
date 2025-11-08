@@ -46,6 +46,6 @@ jobs:
 
       # Verify Build 
       - name: Build Application 
-        run: npm run build 
+        run: npm run build:ci
 
 
