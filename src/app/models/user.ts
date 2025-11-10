@@ -1,6 +1,7 @@
 // Code was adapted from GPT-5 mini model on 10/22/2025
 
 import mongoose from "mongoose";
+import { connectToDatabase } from "@/app/lib/database";
 import { convertStringIdToObjectId } from "./helper_functions";
 
 // User shape used by the app
@@ -32,6 +33,7 @@ const UserModel = mongoose.models.User as mongoose.Model<IUser>
 
 // Create Operations
 export async function createUser(data: IUser): Promise<IUser> {
+    await connectToDatabase();
     try {
         const created = await UserModel.create({
             username: data.username,
@@ -53,6 +55,7 @@ export async function createUser(data: IUser): Promise<IUser> {
 
 // Read Operations
 export async function getUsers(): Promise<IUser[]> {
+    await connectToDatabase();
     try {
         const users = await UserModel.find().lean();
         return users as unknown as IUser[];
@@ -64,6 +67,7 @@ export async function getUsers(): Promise<IUser[]> {
 }
 
 export async function getUserById(userId: string): Promise<IUser | null> {
+    await connectToDatabase();
     try {
         // Convert string to ObjectId type
         const id = convertStringIdToObjectId(userId);
@@ -83,6 +87,7 @@ export async function getUserById(userId: string): Promise<IUser | null> {
  * @returns User object or null if not found.
  */
 export async function getUserByUsername(username: string): Promise<IUser | null> {
+    await connectToDatabase();
   try {
     // Find user and return as plain object
     const user = await UserModel.findOne({ username }).lean();
@@ -96,6 +101,7 @@ export async function getUserByUsername(username: string): Promise<IUser | null>
 
 // Update Operations
 export async function updateUser(userId: string, update: Partial<IUser>): Promise<IUser | null> {
+    await connectToDatabase();
     try {
         const id = convertStringIdToObjectId(userId);
         const updated = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
@@ -109,6 +115,7 @@ export async function updateUser(userId: string, update: Partial<IUser>): Promis
 
 // Delete Operations
 export async function deleteUser(userId: string): Promise<IUser | null> {
+    await connectToDatabase();
     try {
         const id = convertStringIdToObjectId(userId);
         const user = await UserModel.findByIdAndDelete(id).lean();
