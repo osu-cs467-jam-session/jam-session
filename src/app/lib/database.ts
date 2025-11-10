@@ -38,24 +38,3 @@ export async function connectToDatabase() {
   cached.conn = await cached.promise;
   return cached.conn;
 }
-
-// ------------------------------
-// User model & helper function
-// ------------------------------
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  contact: String,
-  instruments: [String],
-  location: String,
-  preferredGenre: String,
-});
-
-const User = mongoose.models.User || mongoose.model("User", userSchema);
-
-/**
- * Fetch a user by their username.
- */
-export async function getUserByUsername(username: string) {
-  await connectToDatabase();
-  return User.findOne({ username }).lean();
-}
