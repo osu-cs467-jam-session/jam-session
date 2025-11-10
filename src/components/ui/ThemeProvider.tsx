@@ -1,14 +1,30 @@
-// This following is adapted from shadcn/ui
-// Source: https://ui.shadcn.com/
-
+// src/components/ui/ThemeProvider.tsx
 "use client";
 
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
+// Define the props you care about
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  attribute?: "class" | "data-theme";
+  defaultTheme?: string;
+  enableSystem?: boolean;
+}
+
 export function ThemeProvider({
   children,
-  ...props
-}: React.ComponentProps<typeof NextThemesProvider>) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  attribute = "class",
+  defaultTheme = "system",
+  enableSystem = true,
+}: ThemeProviderProps) {
+  return (
+    <NextThemesProvider
+      attribute={attribute}
+      defaultTheme={defaultTheme}
+      enableSystem={enableSystem}
+    >
+      {children}
+    </NextThemesProvider>
+  );
 }
