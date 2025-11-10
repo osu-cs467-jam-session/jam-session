@@ -1,6 +1,6 @@
 // src/app/api/profile/[username]/route.ts
 import { NextResponse } from "next/server";
-import { getUserByUsername } from "@/app/lib/database";
+import { getUserByUsername } from "@/app/models/user";
 
 // Define the GET handler with correct types for Next.js 15
 export async function GET(
