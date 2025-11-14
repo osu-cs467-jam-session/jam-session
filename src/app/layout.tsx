@@ -48,7 +48,7 @@ export default function RootLayout({
             disableTransitionOnChange>
             <div className="min-h-screen">
               {/* navigation bar at top of app */}
-              <NavBar/>
+              <NavBar />
               <main className="py-8">
                 <div className="max-w-7xl mx-auto px-4">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
