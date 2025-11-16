@@ -1,49 +1,112 @@
-// Reusable Mongo Connection with Mongoose
-
-// lib/mongoose.ts
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import { connectToDatabase } from "@/app/lib/database";
+import {
+  createUser,
+  getUsers,
+  updateUser,
+  deleteUser,
+  IUser,
+} from "@/app/models/user";
 import mongoose from "mongoose";
 
-const MONGODB_URI: string = process.env.MONGODB_URI as string;
-const DB_NAME = process.env.DB_NAME as string;
+export type SafeUser = Omit<IUser, "hashedPassword">;
 
-if (!MONGODB_URI) {
-    throw new Error("⚠️ Please define the MONGODB_URI environment variable inside .env.local");
+function excludeHashedPassword(user: IUser): SafeUser {
+  const { hashedPassword, ...rest } = user;
+  return rest;
 }
 
-/*
- * Global is used here to prevent multiple connections in dev mode.
- * In production, this isn't needed because Next.js won't hot reload.
- */
-
-
-interface MongooseCache {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+/** GET: Fetch all users */
+export async function GET() {
+  await connectToDatabase();
+  try {
+    const users = await getUsers();
+    const safeUsers = users.map(excludeHashedPassword);
+    return NextResponse.json({ success: true, data: safeUsers });
+  } catch (error) {
+    console.error("GET /api/users error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch users" },
+      { status: 500 }
+    );
+  }
 }
 
-declare global {
-    var mongoose: MongooseCache | undefined;
+/** POST: Create new user */
+export async function POST(request: Request) {
+  await connectToDatabase();
+  try {
+    const body = await request.json();
+    const hashed = await bcrypt.hash(body.password, 10);
+    const newUser = await createUser({ ...body, hashedPassword: hashed });
+    const safeUser = excludeHashedPassword(newUser);
+    return NextResponse.json(
+      { success: true, data: safeUser },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("POST /api/users error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to create user" },
+      { status: 500 }
+    );
+  }
 }
 
-const cached: MongooseCache = global.mongoose ?? {
-    conn: null,
-    promise: null,
-};
-
-global.mongoose = cached;
-
-export async function connectToDatabase() {
-    if (cached.conn) {
-        return cached.conn;
+/** PUT: Update existing user */
+export async function PUT(request: Request) {
+  await connectToDatabase();
+  try {
+    const body = await request.json();
+    if (!body._id || !mongoose.Types.ObjectId.isValid(body._id)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid or missing ID" },
+        { status: 400 }
+      );
     }
+    const updatedUser = await updateUser(body._id, body);
+    if (!updatedUser)
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 }
+      );
+    const safeUser = excludeHashedPassword(updatedUser);
+    return NextResponse.json({ success: true, data: safeUser });
+  } catch (error) {
+    console.error("PUT /api/users error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update user" },
+      { status: 500 }
+    );
+  }
+}
 
-    if (!cached.promise) {
-        cached.promise = mongoose.connect(MONGODB_URI, {
-            dbName: DB_NAME,
-            bufferCommands: false,
-        }).then((mongoose) => mongoose);
+/** DELETE: Remove user by id */
+export async function DELETE(request: Request) {
+  await connectToDatabase();
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid or missing ID" },
+        { status: 400 }
+      );
     }
-
-    cached.conn = await cached.promise;
-    return cached.conn;
+    const deletedUser = await deleteUser(id);
+    if (!deletedUser)
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 }
+      );
+    const safeUser = excludeHashedPassword(deletedUser);
+    return NextResponse.json({ success: true, data: safeUser });
+  } catch (error) {
+    console.error("DELETE /api/users error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to delete user" },
+      { status: 500 }
+    );
+  }
 }

@@ -40,15 +40,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* Body contains all visible content */}
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {/* Wrap with ClerkProvider to handle authentication context */}
         <ClerkProvider>
           {/* Wrap with ThemeProvider for dark/light mode management */}
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="min-h-screen">
-              {/* Top navigation bar */}
+              {/* navigation bar at top of app */}
               <NavBar />
-              {/* Main content area */}
               <main className="py-8">
                 <div className="max-w-7xl mx-auto px-4">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
