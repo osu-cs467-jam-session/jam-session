@@ -21,6 +21,12 @@ export async function GET(request: Request) {
   const id = searchParams.get("id");
   const userId = searchParams.get("userId");
 
+  // Pagination and filtering additions
+  const cursor = searchParams.get("cursor"); 
+  const limitParam = searchParams.get("limit");
+  const search = searchParams.get("search"); // optional text search in title/body/tags
+  const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 10, 50) : 10;
+
   try {
     // Get post by id
     if (id) {
@@ -40,6 +46,29 @@ export async function GET(request: Request) {
     }
 
     // Get posts by userId
+    // OLD: no pagination or search
+    // if (userId) {
+    //   if (!mongoose.Types.ObjectId.isValid(userId)) {
+    //     return NextResponse.json(
+    //       { success: false, error: "Invalid userId format" },
+    //       { status: 400 }
+    //     );
+    //   }
+    //   const posts = await getPosts();
+    //   const userPosts = posts.filter(
+    //     (p) => p.userId.toString() === userId.toString()
+    //   );
+    //   return NextResponse.json({ success: true, data: userPosts });
+    // }
+
+    // Get all posts
+    // const posts = await getPosts();
+    // return NextResponse.json({ success: true, data: posts });
+
+    // Pagination and filtering additions (replacing block above)
+    let posts = await getPosts();
+
+    // Filter by userId if provided
     if (userId) {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         return NextResponse.json(
@@ -47,16 +76,52 @@ export async function GET(request: Request) {
           { status: 400 }
         );
       }
-      const posts = await getPosts();
-      const userPosts = posts.filter(
-        (p) => p.userId.toString() === userId.toString()
+      posts = posts.filter(
+        (p) => p.userId?.toString() === userId.toString()
       );
-      return NextResponse.json({ success: true, data: userPosts });
     }
 
-    // Get all posts
-    const posts = await getPosts();
-    return NextResponse.json({ success: true, data: posts });
+    // Optional text search in title/body/tags
+    if (search) {
+      const lower = search.toLowerCase();
+      posts = posts.filter((p) => {
+        const titleMatch = p.title?.toLowerCase().includes(lower);
+        const bodyMatch = p.body?.toLowerCase().includes(lower);
+        const tagsMatch = (p.tags || []).some((tag) =>
+          tag.toLowerCase().includes(lower)
+        );
+        return titleMatch || bodyMatch || tagsMatch;
+      });
+    }
+
+    // Sort by _id for stable cursor ordering
+    posts.sort((a, b) => {
+      const aId = a._id ? a._id.toString() : "";
+      const bId = b._id ? b._id.toString() : "";
+      return aId.localeCompare(bId);
+    });
+
+    // Apply cursor
+    let startIndex = 0;
+    if (cursor) {
+      const idx = posts.findIndex((p) => p._id?.toString() === cursor);
+      if (idx >= 0) {
+        startIndex = idx + 1;
+      }
+    }
+
+    const pageItems = posts.slice(startIndex, startIndex + limit);
+    const nextCursor =
+      pageItems.length === limit && pageItems[pageItems.length - 1]?._id
+        ? pageItems[pageItems.length - 1]._id!.toString()
+        : null;
+
+    return NextResponse.json({
+      success: true,
+      data: pageItems,
+      count: pageItems.length,
+      nextCursor,
+    });
   } catch (error) {
     console.error("GET /api/posts error:", error);
     return NextResponse.json(

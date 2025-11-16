@@ -21,6 +21,12 @@ export async function GET(request: Request) {
   const id = searchParams.get("id");
   const parentId = searchParams.get("parentId");
 
+  // Pagination and filtering additions
+  const cursor = searchParams.get("cursor");
+  const limitParam = searchParams.get("limit");
+  const search = searchParams.get("search"); // search in comment text
+  const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 10, 50) : 10;
+
   try {
     // Get comment by id
     if (id) {
@@ -40,6 +46,28 @@ export async function GET(request: Request) {
     }
 
     // Get comments by parentId
+    // OLD: no pagination or search
+    // if (parentId) {
+    //   if (!mongoose.Types.ObjectId.isValid(parentId)) {
+    //     return NextResponse.json(
+    //       { success: false, error: "Invalid parentId format" },
+    //       { status: 400 }
+    //     );
+    //   }
+    //   const comments = await getComments();
+    //   const filtered = comments.filter(
+    //     (c) => c.parentId.toString() === parentId.toString()
+    //   );
+    //   return NextResponse.json({ success: true, data: filtered });
+    // }
+
+    // Get all comments
+    // const comments = await getComments();
+    // return NextResponse.json({ success: true, data: comments });
+
+    // Pagination and filtering additions (replacing block above)
+    let comments = await getComments();
+
     if (parentId) {
       if (!mongoose.Types.ObjectId.isValid(parentId)) {
         return NextResponse.json(
@@ -47,16 +75,44 @@ export async function GET(request: Request) {
           { status: 400 }
         );
       }
-      const comments = await getComments();
-      const filtered = comments.filter(
-        (c) => c.parentId.toString() === parentId.toString()
+      comments = comments.filter(
+        (c) => c.parentId?.toString() === parentId.toString()
       );
-      return NextResponse.json({ success: true, data: filtered });
     }
 
-    // Get all comments
-    const comments = await getComments();
-    return NextResponse.json({ success: true, data: comments });
+    if (search) {
+      const lower = search.toLowerCase();
+      comments = comments.filter((c) =>
+        c.comment?.toLowerCase().includes(lower)
+      );
+    }
+
+    comments.sort((a, b) => {
+      const aId = a._id ? a._id.toString() : "";
+      const bId = b._id ? b._id.toString() : "";
+      return aId.localeCompare(bId);
+    });
+
+    let startIndex = 0;
+    if (cursor) {
+      const idx = comments.findIndex((c) => c._id?.toString() === cursor);
+      if (idx >= 0) {
+        startIndex = idx + 1;
+      }
+    }
+
+    const pageItems = comments.slice(startIndex, startIndex + limit);
+    const nextCursor =
+      pageItems.length === limit && pageItems[pageItems.length - 1]?._id
+        ? pageItems[pageItems.length - 1]._id!.toString()
+        : null;
+
+    return NextResponse.json({
+      success: true,
+      data: pageItems,
+      count: pageItems.length,
+      nextCursor,
+    });
   } catch (error) {
     console.error("GET /api/comments error:", error);
     return NextResponse.json(

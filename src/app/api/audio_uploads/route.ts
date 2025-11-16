@@ -21,6 +21,12 @@ export async function GET(request: Request) {
   const id = searchParams.get("id");
   const userId = searchParams.get("userId");
 
+  // Pagination + filtering additions
+  const cursor = searchParams.get("cursor");
+  const limitParam = searchParams.get("limit");
+  const search = searchParams.get("search"); // search in title/tags
+  const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 10, 50) : 10;
+
   try {
     // Get by ID
     if (id) {
@@ -40,6 +46,28 @@ export async function GET(request: Request) {
     }
 
     // Get by userId
+    // OLD: no pagination or search
+    // if (userId) {
+    //   if (!mongoose.Types.ObjectId.isValid(userId)) {
+    //     return NextResponse.json(
+    //       { success: false, error: "Invalid userId format" },
+    //       { status: 400 }
+    //     );
+    //   }
+    //   const uploads = await getAudioUploads();
+    //   const userUploads = uploads.filter(
+    //     (u) => u.userId.toString() === userId.toString()
+    //   );
+    //   return NextResponse.json({ success: true, data: userUploads });
+    // }
+
+    // Get all uploads
+    // const uploads = await getAudioUploads();
+    // return NextResponse.json({ success: true, data: uploads });
+
+    // Pagination + filtering additions (replacing block above)
+    let uploads = await getAudioUploads();
+
     if (userId) {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         return NextResponse.json(
@@ -47,16 +75,48 @@ export async function GET(request: Request) {
           { status: 400 }
         );
       }
-      const uploads = await getAudioUploads();
-      const userUploads = uploads.filter(
-        (u) => u.userId.toString() === userId.toString()
+      uploads = uploads.filter(
+        (u) => u.userId?.toString() === userId.toString()
       );
-      return NextResponse.json({ success: true, data: userUploads });
     }
 
-    // Get all uploads
-    const uploads = await getAudioUploads();
-    return NextResponse.json({ success: true, data: uploads });
+    if (search) {
+      const lower = search.toLowerCase();
+      uploads = uploads.filter((u) => {
+        const titleMatch = u.title?.toLowerCase().includes(lower);
+        const tagsMatch = (u.tags || []).some((tag) =>
+          tag.toLowerCase().includes(lower)
+        );
+        return titleMatch || tagsMatch;
+      });
+    }
+
+    uploads.sort((a, b) => {
+      const aId = a._id ? a._id.toString() : "";
+      const bId = b._id ? b._id.toString() : "";
+      return aId.localeCompare(bId);
+    });
+
+    let startIndex = 0;
+    if (cursor) {
+      const idx = uploads.findIndex((u) => u._id?.toString() === cursor);
+      if (idx >= 0) {
+        startIndex = idx + 1;
+      }
+    }
+
+    const pageItems = uploads.slice(startIndex, startIndex + limit);
+    const nextCursor =
+      pageItems.length === limit && pageItems[pageItems.length - 1]?._id
+        ? pageItems[pageItems.length - 1]._id!.toString()
+        : null;
+
+    return NextResponse.json({
+      success: true,
+      data: pageItems,
+      count: pageItems.length,
+      nextCursor,
+    });
   } catch (error) {
     console.error("GET /api/audio_uploads error:", error);
     return NextResponse.json(

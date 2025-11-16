@@ -31,6 +31,12 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
+  // Pagination + filtering additions
+  const cursor = searchParams.get("cursor"); 
+  const limitParam = searchParams.get("limit"); 
+  const search = searchParams.get("search"); 
+  const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 10, 50) : 10; // default 10, max 50
+
   try {
     // Get user by id
     if (id) {
@@ -54,13 +60,62 @@ export async function GET(request: Request) {
     }
 
     // Get all users w/ hidden password
-    const users = await getUsers();
-    const safeUsers = users.map(({ hashedPassword, ...rest }) => {
-      console.log("Excluding hashedPassword from user:", !!hashedPassword);
-      return rest;
+    // OLD: no pagination or search
+    // const users = await getUsers();
+    // const safeUsers = users.map(({ hashedPassword, ...rest }) => {
+    //   console.log("Excluding hashedPassword from user:", !!hashedPassword);
+    //   return rest;
+    // }
+    // );
+    // return NextResponse.json({ success: true, data: safeUsers });
+
+    // Pagination and filtering additions (replacing block above)
+    let users = await getUsers();
+
+    // Optional text search on username, instrumentsArray, preferredGenre
+    if (search) {
+      const lower = search.toLowerCase();
+      users = users.filter((u) => {
+        const usernameMatch = u.username?.toLowerCase().includes(lower);
+        const genreMatch = u.preferredGenre
+          ? u.preferredGenre.toLowerCase().includes(lower)
+          : false;
+        const instrumentsMatch = (u.instrumentsArray || []).some((inst) =>
+          inst.toLowerCase().includes(lower)
+        );
+        return usernameMatch || genreMatch || instrumentsMatch;
+      });
     }
-    );
-    return NextResponse.json({ success: true, data: safeUsers });
+
+    // Sort by _id for stable cursor ordering
+    users.sort((a, b) => {
+      const aId = a._id ? a._id.toString() : "";
+      const bId = b._id ? b._id.toString() : "";
+      return aId.localeCompare(bId);
+    });
+
+    // Apply cursor (start after this _id)
+    let startIndex = 0;
+    if (cursor) {
+      const idx = users.findIndex((u) => u._id?.toString() === cursor);
+      if (idx >= 0) {
+        startIndex = idx + 1;
+      }
+    }
+
+    const pageItems = users.slice(startIndex, startIndex + limit);
+    const safeUsers = pageItems.map(excludeHashedPassword);
+    const nextCursor =
+      pageItems.length === limit && pageItems[pageItems.length - 1]?._id
+        ? pageItems[pageItems.length - 1]._id!.toString()
+        : null;
+
+    return NextResponse.json({
+      success: true,
+      data: safeUsers,
+      count: safeUsers.length,
+      nextCursor,
+    });
   } catch (error) {
     console.error("GET /api/users error:", error);
     return NextResponse.json(
@@ -106,6 +161,18 @@ export async function PUT(request: Request) {
   await connectToDatabase();
   try {
     const body = await request.json();
+
+    // Password update moved to dedicated endpoint
+    // Prevent password / hashedPassword from being changed here
+    if ("password" in body || "hashedPassword" in body) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Password updates must use /api/users/password endpoint",
+        },
+        { status: 400 }
+      );
+    }
 
     // Validate id
     if (!body._id || !mongoose.Types.ObjectId.isValid(body._id)) {

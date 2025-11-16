@@ -67,7 +67,7 @@ export async function getUserById(userId: string): Promise<IUser | null> {
     try {
         // Convert string to ObjectId type
         const id = convertStringIdToObjectId(userId);
-        const user = await UserModel.findOne({ id }).lean();
+        const user = await UserModel.findOne( id ).lean();
         return user as unknown as IUser | null;
     }
     catch (error) {
