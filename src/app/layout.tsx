@@ -5,17 +5,18 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 
-// Clerk (authentication service)
+// Clerk authentication
 import { ClerkProvider } from "@clerk/nextjs";
 
-// theme management
+// Theme management
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 
-// custom NavBar/Project Name component
+// Navigation bar
 import NavBar from "@/components/ui/NavBar";
 
 // ***************************************************************
 
+// Configure Google fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,43 +27,40 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Page metadata
 export const metadata: Metadata = {
-  title: "Jam Session",   // should this be named something else?
-  description: "",        // should a desciption be added?
+  title: "Jam Session", // App title
+  description: "Find and connect with local musicians", // optional description
 };
 
-// main layout wrapper
+// Root layout component
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    // wrap in ClerkProvider to provide authentication context to all child components
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          {/* wrap in ThemeProvider for theme management */}
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange>
+    <html lang="en">
+      {/* Body contains all visible content */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {/* Wrap with ClerkProvider to handle authentication context */}
+        <ClerkProvider>
+          {/* Wrap with ThemeProvider for dark/light mode management */}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="min-h-screen">
               {/* navigation bar at top of app */}
               <NavBar />
               <main className="py-8">
                 <div className="max-w-7xl mx-auto px-4">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    {/* commenting this line out for now
-                    <div className="hidden lg:block lg:col-span-3">Sidebar</div>
-                    */}
                     <div className="lg:col-span-9">{children}</div>
                   </div>
                 </div>
               </main>
             </div>
           </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
