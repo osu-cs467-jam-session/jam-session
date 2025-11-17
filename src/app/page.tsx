@@ -2,6 +2,7 @@
 'use client';
 import { set } from 'mongoose';
 import React, { useState, useEffect } from 'react';
+import Comments from '@/components/ui/Comments/comments';
 
 interface IPost {
   _id: string; // MongoDB ObjectId
@@ -61,7 +62,7 @@ export default function Home() {
                   #{tag}
                 </span>
               ))}
-              <p className='hover:text-chart-3'>Comments</p>
+              <Comments parentId={post._id} />
             </div>
 
           </div>
