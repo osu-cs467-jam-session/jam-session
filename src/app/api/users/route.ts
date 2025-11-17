@@ -19,13 +19,21 @@ function excludeHashedPassword(user: IUser): SafeUser {
 
 /** GET: Fetch all users */
 export async function GET() {
-  await connectToDatabase();
+  console.log("GET /api/users called");
+
   try {
+    await connectToDatabase();
+    console.log("Connected to DB");
+
     const users = await getUsers();
+    console.log(`Fetched ${users.length} users`);
+
     const safeUsers = users.map(excludeHashedPassword);
+
     return NextResponse.json({ success: true, data: safeUsers });
   } catch (error) {
     console.error("GET /api/users error:", error);
+
     return NextResponse.json(
       { success: false, error: "Failed to fetch users" },
       { status: 500 }
