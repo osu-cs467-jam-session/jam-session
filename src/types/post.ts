@@ -11,3 +11,13 @@ export type NewPostInput = {
   text: string;
 };
 
+export interface IPost {
+  _id: string; // MongoDB ObjectId
+  userId: string; // Reference to User's ObjectId
+  userName: string;
+  title: string;
+  body: string;
+  date?: Date;
+  tags?: string[];
+}
+

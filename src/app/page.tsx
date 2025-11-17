@@ -1,21 +1,12 @@
 // Home component for the main page
 'use client';
-import { set } from 'mongoose';
+import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import Comments from '@/components/ui/Comments/comments';
-
-interface IPost {
-  _id: string; // MongoDB ObjectId
-  userId: string; // Reference to User's ObjectId
-  userName: string;
-  title: string;
-  body: string;
-  date?: Date;
-  tags?: string[];
-}
+import type { IPost } from '@/types/post';
 
 export default function Home() {
-
+  const router = useRouter();
   // Set state for posts
   const [posts, setPosts] = useState<Array<IPost>>([]);
 
@@ -39,6 +30,12 @@ export default function Home() {
 
 
   }, []);
+
+  function handleClick(postId: string) {
+    console.log("Comments clicked");
+    router.push('/posts/' + postId);
+  }
+
   return (
     <section className="flex flex-col items-center justify-top text-center min-h-screen px-4 sm:px-20 gap-6">
       <header className="">
@@ -62,7 +59,7 @@ export default function Home() {
                   #{tag}
                 </span>
               ))}
-              <Comments parentId={post._id} />
+              <Comments parentId={post._id} clickFn={handleClick} />
             </div>
 
           </div>

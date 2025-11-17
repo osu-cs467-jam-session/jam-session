@@ -51,7 +51,7 @@ export default function RootLayout({
               {/* navigation bar at top of app */}
               <NavBar />
               <main className="py-8">
-                <div className="lg:col-span-9">{children}</div>
+                <div className="">{children}</div>
               </main>
             </div>
           </ThemeProvider>
