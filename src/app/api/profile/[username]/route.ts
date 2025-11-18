@@ -1,4 +1,3 @@
-// src/app/api/profile/[username]/route.ts
 import { NextResponse } from "next/server";
 import { getUserByUsername } from "@/app/models/user";
 
