@@ -1,114 +1,105 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
-interface CreateProfileFormProps {}
-
-export default function CreateProfileForm({}: CreateProfileFormProps) {
-  const router = useRouter();
-
+export default function CreateProfileForm() {
   const [username, setUsername] = useState("");
-  const [instruments, setInstruments] = useState("");
-  const [preferredGenre, setPreferredGenre] = useState("");
   const [location, setLocation] = useState("");
+  const [preferredGenre, setPreferredGenre] = useState("");
+  const [instruments, setInstruments] = useState(""); // comma-separated
   const [contact, setContact] = useState("");
-
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
     setError(null);
 
     try {
+      const instrumentsArray = instruments
+        .split(",")
+        .map((i) => i.trim())
+        .filter(Boolean);
+
       const res = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username,
-          instrumentsArray: instruments
-            .split(",")
-            .map((i) => i.trim())
-            .filter(Boolean),
-          preferredGenre,
           location,
+          preferredGenre,
+          instrumentsArray,
           contact,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data?.error || "Failed to create profile");
+        throw new Error(data.error || "Failed to create profile");
       }
 
-      const created = await res.json();
-
-      // redirect to the newly created profile page
-      router.push(`/profile/${created.username || created.clerkUserId}`);
+      // Optionally reset form after successful submit
+      setUsername("");
+      setLocation("");
+      setPreferredGenre("");
+      setInstruments("");
+      setContact("");
+      alert("Profile created!");
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 bg-white p-6 rounded shadow-md w-full max-w-md"
+      className="space-y-4 bg-white p-6 rounded-2xl shadow-md max-w-md mx-auto font-sans"
     >
-      {error && <p className="text-red-500">{error}</p>}
+      <h2 className="text-2xl font-semibold text-gray-900">Create Profile</h2>
 
-      <input
-        type="text"
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+
+      <Input
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         required
-        className="border p-2 rounded"
+        className="font-sans text-gray-900"
       />
-
-      <input
-        type="text"
-        placeholder="Instruments (comma separated)"
-        value={instruments}
-        onChange={(e) => setInstruments(e.target.value)}
-        className="border p-2 rounded"
-      />
-
-      <input
-        type="text"
-        placeholder="Preferred Genre"
-        value={preferredGenre}
-        onChange={(e) => setPreferredGenre(e.target.value)}
-        className="border p-2 rounded"
-      />
-
-      <input
-        type="text"
+      <Input
         placeholder="Location"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
-        className="border p-2 rounded"
+        className="font-sans text-gray-900"
       />
-
-      <input
-        type="text"
-        placeholder="Contact Info"
+      <Input
+        placeholder="Preferred Genre"
+        value={preferredGenre}
+        onChange={(e) => setPreferredGenre(e.target.value)}
+        className="font-sans text-gray-900"
+      />
+      <Input
+        placeholder="Instruments (comma-separated)"
+        value={instruments}
+        onChange={(e) => setInstruments(e.target.value)}
+        className="font-sans text-gray-900"
+      />
+      <Input
+        placeholder="Contact"
         value={contact}
         onChange={(e) => setContact(e.target.value)}
-        className="border p-2 rounded"
+        className="font-sans text-gray-900"
       />
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-blue-500 text-white p-2 rounded disabled:opacity-50"
-      >
-        {loading ? "Creating..." : "Create Profile"}
-      </button>
+      <Button type="submit" disabled={isSubmitting} className="w-full">
+        {isSubmitting ? "Submitting..." : "Create Profile"}
+      </Button>
     </form>
   );
 }
