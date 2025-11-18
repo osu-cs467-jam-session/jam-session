@@ -6,21 +6,25 @@ import { convertStringIdToObjectId } from "./helper_functions";
 
 export interface IPost {
     _id: mongoose.Types.ObjectId; // MongoDB ObjectId
-    userId: mongoose.Types.ObjectId; // Reference to User's ObjectId
+    userId: mongoose.Types.ObjectId | string; // Can be MongoDB ObjectId or Clerk ID string
     title: string;
     body: string;
     date?: Date;
-    tags?: string[];
+    tags?: string[]; // Structured tags: ["skill:amateur", "instrument:guitar", "genre:rock"]
+    audioUploadId?: mongoose.Types.ObjectId; // Optional reference to AudioUpload
+    albumArtUrl?: string; // Optional URL to album art image
 }
 
 // Post schema
 const PostSchema = new mongoose.Schema<IPost>(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        userId: { type: mongoose.Schema.Types.Mixed, required: true }, // Can be ObjectId or Clerk ID string
         title: { type: String, required: true },
         body: { type: String, required: true },
         date: { type: Date, default: Date.now },
         tags: { type: [String], default: [] },
+        audioUploadId: { type: mongoose.Schema.Types.ObjectId, ref: "AudioUpload", required: false },
+        albumArtUrl: { type: String, required: false },
     }
 );
 

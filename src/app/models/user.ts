@@ -12,6 +12,8 @@ export interface IUser {
     preferredGenre?: string;
     location?: string;
     contact?: string;
+    experienceLevel?: string; // "amateur" | "advanced amateur" | "proficient" | "gigging" | "professional"
+    clerkId?: string; // Link to Clerk user ID
 }
 
 // User schema (use default ObjectId _id provided by MongoDB)
@@ -23,6 +25,8 @@ const UserSchema = new mongoose.Schema<IUser>(
         preferredGenre: { type: String },
         location: { type: String },
         contact: { type: String },
+        experienceLevel: { type: String },
+        clerkId: { type: String, unique: true, sparse: true }, // Sparse index allows null values
     }
 );
 
@@ -40,6 +44,8 @@ export async function createUser(data: IUser): Promise<IUser> {
             preferredGenre: data.preferredGenre,
             location: data.location,
             contact: data.contact,
+            experienceLevel: data.experienceLevel,
+            clerkId: data.clerkId,
         });
 
         return (created.toObject && created.toObject()) as unknown as IUser;
@@ -67,7 +73,7 @@ export async function getUserById(userId: string): Promise<IUser | null> {
     try {
         // Convert string to ObjectId type
         const id = convertStringIdToObjectId(userId);
-        const user = await UserModel.findOne({ id }).lean();
+        const user = await UserModel.findById(id).lean();
         return user as unknown as IUser | null;
     }
     catch (error) {
