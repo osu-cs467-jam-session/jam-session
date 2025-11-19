@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 
 export default function CreateProfileForm() {
   const [username, setUsername] = useState("");
@@ -49,13 +48,16 @@ export default function CreateProfileForm() {
       setInstruments("");
       setContact("");
       alert("Profile created!");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(String(err));
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit}
