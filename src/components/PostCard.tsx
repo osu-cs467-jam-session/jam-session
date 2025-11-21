@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import type { Post } from '@/types/post'
-import { parseTag, getTagsByType } from '@/types/post'
+import { getTagsByType } from '@/types/post'
 import Image from 'next/image'
 
 type PostCardProps = {

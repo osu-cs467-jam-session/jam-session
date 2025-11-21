@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useImperativeHandle, forwardRef } from 'react'
+import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react'
 import type { Post } from '@/types/post'
 import { fetchPosts } from '@/lib/api/client'
 import PostCard from './PostCard'
@@ -30,8 +30,8 @@ const PostList = forwardRef<PostListRef, PostListProps>(({ userId }, ref) => {
         return dateB - dateA
       })
       setPosts(sorted)
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load posts')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load posts')
     } finally {
       setLoading(false)
     }

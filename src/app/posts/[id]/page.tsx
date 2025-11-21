@@ -1,3 +1,7 @@
+/**
+ * Adapted Tailwind utilities for styling the post detail page from ChatGPT 5.1 on 11/17/2025.
+ */
+
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -27,8 +31,8 @@ export default function PostDetailPage() {
         setError(null)
         const fetchedPost = await fetchPostById(postId)
         setPost(fetchedPost)
-      } catch (err: any) {
-        setError(err?.message || 'Failed to load post')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load post')
       } finally {
         setLoading(false)
       }
@@ -46,8 +50,8 @@ export default function PostDetailPage() {
       setIsDeleting(true)
       await deletePost(post._id)
       router.push('/')
-    } catch (err: any) {
-      alert(err?.message || 'Failed to delete post')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete post')
     } finally {
       setIsDeleting(false)
     }

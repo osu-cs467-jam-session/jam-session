@@ -38,13 +38,13 @@ export async function GET(request: Request) {
         );
 
       // Exclude password hash before returning
-      const { hashedPassword, ...safeUser } = user;
+      const { hashedPassword: _hashedPassword, ...safeUser } = user;
       return NextResponse.json({ success: true, data: safeUser });
     }
 
     // Get all users w/ hidden password
     const users = await getUsers();
-    const safeUsers = users.map(({ hashedPassword, ...rest }) => rest);
+    const safeUsers = users.map(({ hashedPassword: _hashedPassword, ...rest }) => rest);
     return NextResponse.json({ success: true, data: safeUsers });
   } catch (error) {
     console.error("GET /api/users error:", error);
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     });
 
     // Hide hashed password
-    const { hashedPassword, ...safeUser } = newUser;
+    const { hashedPassword: _hashedPassword, ...safeUser } = newUser;
     return NextResponse.json({ success: true, data: safeUser }, { status: 201 });
   } catch (error) {
     console.error("POST /api/users error:", error);
@@ -107,7 +107,7 @@ export async function PUT(request: Request) {
       );
 
     // Exclude hashed password
-    const { hashedPassword, ...safeUser } = updatedUser;
+    const { hashedPassword: _hashedPassword, ...safeUser } = updatedUser;
     return NextResponse.json({ success: true, data: safeUser });
   } catch (error) {
     console.error("PUT /api/users error:", error);
@@ -140,8 +140,8 @@ export async function DELETE(request: Request) {
         { status: 404 }
       );
 
-    // Exclude hashed passwrd
-    const { hashedPassword, ...safeUser } = deletedUser;
+    // Exclude hashed password
+    const { hashedPassword: _hashedPassword, ...safeUser } = deletedUser;
     return NextResponse.json({ success: true, data: safeUser });
   } catch (error) {
     console.error("DELETE /api/users error:", error);

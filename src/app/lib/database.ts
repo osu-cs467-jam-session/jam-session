@@ -33,6 +33,10 @@ const cached: MongooseCache = global.mongoose ?? {
 global.mongoose = cached;
 
 export async function connectToDatabase() {
+    if (!MONGODB_URI) {
+        throw new Error("⚠️ Please define the MONGODB_URI environment variable");
+    }
+
     if (cached.conn) {
         return cached.conn;
     }

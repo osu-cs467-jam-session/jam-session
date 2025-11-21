@@ -87,8 +87,8 @@ export default function PostForm({
 
       // Notify parent component
       onPostCreated?.()
-    } catch (err: any) {
-      setError(err?.message ?? 'Failed to submit') // error message of failed submission
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to submit')
     } finally {
       setIsSubmitting(false)
     }
