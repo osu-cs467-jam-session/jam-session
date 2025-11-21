@@ -4,15 +4,16 @@ interface ProfilePageProps {
   params: { username: string }; // dynamic route parameter
 }
 
-// Profile page for a specific username
-// Next.js 15.5+ requires `params` to be awaited when used dynamically
+// profile page for a specific username
 export default async function ProfilePage({ params }: ProfilePageProps) {
   // await the params object to extract the username
   const { username } = await params;
 
   // fetch user data from API route; no caching to always get fresh data
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/profile/${username}`,
+    `${
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+    }/api/profile/${username}`,
     { cache: "no-store" }
   );
 
@@ -26,7 +27,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   // parse the JSON response
-  const user = await res.json();
+  const json = await res.json();
+  const user = json.data; //  extract the data object
+
+  console.log("Fetched user:", user);
 
   // render ProfileCard
   return (

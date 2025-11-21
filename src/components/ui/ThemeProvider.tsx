@@ -5,10 +5,10 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 // Props for ThemeProvider wrapper
 interface ThemeProviderProps {
-  children: React.ReactNode;          // Components wrapped by provider
+  children: React.ReactNode; // Components wrapped by provider
   attribute?: "class" | "data-theme"; // Which HTML attribute controls theme
-  defaultTheme?: string;              // Default theme (e.g., "system", "light", "dark")
-  enableSystem?: boolean;             // Allow following user's system preference
+  defaultTheme?: string; // Default theme (e.g., "system", "light", "dark")
+  enableSystem?: boolean; // Allow following user's system preference
 }
 
 export function ThemeProvider({
@@ -27,10 +27,10 @@ export function ThemeProvider({
 
   return (
     <NextThemesProvider
-      attribute={attribute}                   // Sets HTML attribute for theme
-      defaultTheme={defaultTheme}             // Default theme value
-      enableSystem={enableSystem}             // Respect user's OS preference
-      disableTransitionOnChange={true}        // Avoid flash when theme changes
+      attribute={attribute} // Sets HTML attribute for theme
+      defaultTheme={defaultTheme} // Default theme value
+      enableSystem={enableSystem} // Respect user's OS preference
+      disableTransitionOnChange={true} // Avoid flash when theme changes
     >
       {children}
     </NextThemesProvider>
