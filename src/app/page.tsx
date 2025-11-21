@@ -51,8 +51,7 @@ export default function Home() {
               <p className="text-sm text-gray-500">{new Date(post.date || '').toLocaleDateString()}</p>
               <p className="text-sm text-gray-500">{post.userName}</p>
             </div>
-            <h2 className="text-2xl font-semibold mb-2">{post.title}</h2>
-            <p className="mb-2">{post.body}</p>
+            <h2 onClick={() => handleClick(post._id)} className="text-2xl font-semibold mb-2 cursor-pointer hover:text-blue-200 transition-colors duration-100">{post.title}</h2>
             <div className="flex items-center justify-between gap-2">
               {post.tags && post.tags.map((tag, index) => (
                 <span key={index} className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full mr-2">
