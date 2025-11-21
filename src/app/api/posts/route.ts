@@ -41,12 +41,6 @@ export async function GET(request: Request) {
 
     // Get posts by userId
     if (userId) {
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid userId format" },
-          { status: 400 }
-        );
-      }
       const posts = await getPosts();
       const userPosts = posts.filter(
         (p) => p.userId.toString() === userId.toString()
@@ -72,22 +66,31 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Validate user id
-    if (!body.userId || !mongoose.Types.ObjectId.isValid(body.userId)) {
+    // Validate user id (can be Clerk ID string or MongoDB ObjectId)
+    if (!body.userId) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing userId" },
         { status: 400 }
       );
     }
 
+    // userId can be Clerk ID (string) or MongoDB ObjectId
+    // If it's a valid ObjectId, convert it; otherwise use as string (Clerk ID)
+    let userId: mongoose.Types.ObjectId | string = body.userId;
+    if (mongoose.Types.ObjectId.isValid(body.userId)) {
+      userId = new mongoose.Types.ObjectId(body.userId);
+    }
+
     // Create new post
     const newPost = await createPost({
       _id: new mongoose.Types.ObjectId(),
-      userId: new mongoose.Types.ObjectId(body.userId),
+      userId: userId,
       title: body.title,
       body: body.body,
       tags: body.tags || [],
       date: new Date(),
+      audioUploadId: body.audioUploadId ? new mongoose.Types.ObjectId(body.audioUploadId) : undefined,
+      albumArtUrl: body.albumArtUrl || undefined,
     });
 
     return NextResponse.json({ success: true, data: newPost }, { status: 201 });
