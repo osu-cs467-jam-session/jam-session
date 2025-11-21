@@ -1,26 +1,31 @@
 // Next.js
-import Link from "next/link"; // used for client-side navigation between pages
+import Link from "next/link";
 
 // Clerk (authentication service)
 import { currentUser } from "@clerk/nextjs/server";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 
-// icons from React library
-import { BellIcon, HomeIcon, UserIcon } from "lucide-react";
+// Icons from lucide-react
+import {
+  BellIcon,
+  HomeIcon,
+  UserIcon,
+  PlusIcon,
+  UsersIcon,
+} from "lucide-react";
 
-// custom Button component
+// Custom Button component
 import { Button } from "@/components/ui/button";
 
 // ***************************************************************
 
-// define component for navigation on desktop
+// Desktop navigation bar
 async function DesktopNavbar() {
-  // get currently logged-in user using Clerk’s server-side helper
+  // get currently signed-in user (server-side)
   const user = await currentUser();
 
   return (
     <div className="hidden md:flex items-center space-x-4">
-
       {/* Home Button */}
       <Button variant="ghost" className="flex items-center gap-2" asChild>
         <Link href="/">
@@ -31,31 +36,48 @@ async function DesktopNavbar() {
 
       {user ? (
         <>
-        {/* Notifications button (only shown if user is signed in) */}
+          {/* Notifications */}
           <Button variant="ghost" className="flex items-center gap-2" asChild>
             <Link href="/notifications">
-              <BellIcon className="w-4 h-4"/>
+              <BellIcon className="w-4 h-4" />
               <span className="hidden lg:inline">Notifications</span>
             </Link>
           </Button>
 
-          {/* Profile button (only shown if user is signed in) */}
+          {/* Profile */}
           <Button variant="ghost" className="flex items-center gap-2" asChild>
-            {/* For profile URL */}
-            <Link href={`/profile/${
+            <Link
+              href={`/profile/${
                 user.username ??
                 user.emailAddresses[0].emailAddress.split("@")[0]
-              }`}>
-              <UserIcon className="w-4 h-4"/>
+              }`}
+            >
+              <UserIcon className="w-4 h-4" />
               <span className="hidden lg:inline">Profile</span>
             </Link>
           </Button>
 
-          <UserButton/>
+          {/* Create Profile */}
+          <Button variant="ghost" className="flex items-center gap-2" asChild>
+            <Link href="/profile/create">
+              <PlusIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Create Profile</span>
+            </Link>
+          </Button>
+
+          {/* Browse Profiles */}
+          <Button variant="ghost" className="flex items-center gap-2" asChild>
+            <Link href="/profile">
+              <UsersIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Browse Profiles</span>
+            </Link>
+          </Button>
+
+          {/* Clerk User Button */}
+          <UserButton />
         </>
       ) : (
-        // if no user signed in, show Sign In button
-        // TO DO: change cursor on hover
+        // Sign In button for guests
         <SignInButton mode="modal">
           <Button variant="default">Sign In</Button>
         </SignInButton>
