@@ -5,7 +5,6 @@ import { useUser } from '@clerk/nextjs'
 import type { CreatePostInput, SkillLevel, Instrument, Genre } from '@/types/post'
 import { createTag } from '@/types/post'
 import { createPost } from '@/lib/api/client'
-import styles from './PostForm.module.css'
 
 type PostFormProps = {
   onPostCreated?: () => void // Callback after successful post creation
@@ -97,14 +96,14 @@ export default function PostForm({
   // Show login prompt if not authenticated
   if (isLoaded && !user) {
     return (
-      <div className={styles.form}>
+      <div className="w-full max-w-2xl p-6 border rounded-lg shadow-sm bg-background">
         <p className="text-center text-gray-500">Please sign in to create a post.</p>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form onSubmit={handleSubmit} className="w-full max-w-2xl p-6 border rounded-lg shadow-sm bg-background">
       <div className="space-y-4">
         {/* Title Input */}
         <div>
@@ -117,7 +116,7 @@ export default function PostForm({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Give your post a title..."
-            className={styles.input}
+            className="w-full rounded-md border p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
             required
             maxLength={100}
           />
@@ -135,7 +134,7 @@ export default function PostForm({
             placeholder={placeholder}
             maxLength={maxLength}
             rows={6}
-            className={styles.textarea}
+            className="w-full resize-y rounded-md border p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
             aria-invalid={!isValid}
             aria-describedby="post-help post-error"
             required
@@ -222,23 +221,23 @@ export default function PostForm({
             value={albumArtUrl}
             onChange={(e) => setAlbumArtUrl(e.target.value)}
             placeholder="https://example.com/album-art.jpg"
-            className={styles.input}
+            className="w-full rounded-md border p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
           />
         </div>
 
         {/* Submit Button */}
-        <div className={styles.footer}>
+        <div className="flex items-center justify-end">
           <button
             type="submit"
             disabled={!isValid || isSubmitting}
-            className={styles.button}
+            className="inline-flex items-center rounded-md bg-blue-600 px-6 py-2 text-white font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Posting…' : submitLabel}
           </button>
         </div>
 
         {error && (
-          <p id="post-error" className={styles.error}>{error}</p>
+          <p id="post-error" className="mt-2 text-sm text-red-600">{error}</p>
         )}
       </div>
     </form>

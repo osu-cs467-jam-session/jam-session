@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     let userName: string | undefined = body.userName;
     if (!userName) {
       try {
-        const profile = await Profile.findOne({ clerkUserId: userId }).lean();
+        const profile = await Profile.findOne({ clerkUserId: userId }).lean() as { username?: string; clerkUserId: string } | null;
         if (profile?.username) {
           userName = profile.username;
         }

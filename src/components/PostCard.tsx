@@ -14,20 +14,27 @@ export default function PostCard({ post }: PostCardProps) {
   const instrumentTags = getTagsByType(post.tags, "instrument")
   const genreTags = getTagsByType(post.tags, "genre")
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Unknown date'
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
+  const formatDate = (date?: string | Date) => {
+    if (!date) return 'Unknown date'
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+    if (isNaN(dateObj.getTime())) return 'Unknown date'
+    return dateObj.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
     })
   }
 
+  const getDateString = (date?: string | Date): string | undefined => {
+    if (!date) return undefined
+    if (typeof date === 'string') return date
+    return date.toISOString()
+  }
+
   // Truncate body for preview
-  const preview = post.body.length > 200 
+  const preview = post.body && post.body.length > 200 
     ? post.body.substring(0, 200) + '...' 
-    : post.body
+    : post.body || ''
 
   return (
     <Link href={`/posts/${post._id}`} className="block">
@@ -39,7 +46,7 @@ export default function PostCard({ post }: PostCardProps) {
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <span>By {post.userName || post.userId}</span>
               <span>•</span>
-              <time dateTime={post.date}>{formatDate(post.date)}</time>
+              <time dateTime={getDateString(post.date)}>{formatDate(post.date)}</time>
             </div>
           </div>
           {post.albumArtUrl && (

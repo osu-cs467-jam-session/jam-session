@@ -1,7 +1,7 @@
 // Home component for the main page
 'use client';
-import { useRouter, useRef } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef } from 'react';
 import Comments from '@/components/ui/Comments/comments';
 import PostForm from '@/components/PostForm';
 import PostList, { type PostListRef } from '@/components/PostList';
