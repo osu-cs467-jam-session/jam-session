@@ -1,13 +1,12 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
 const hasClerkKey = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 // If Clerk is configured, use clerkMiddleware, otherwise just pass through
 const middleware = hasClerkKey 
   ? clerkMiddleware()
-  : (req: NextRequest) => NextResponse.next();
+  : () => NextResponse.next();
 
 export default middleware;
 

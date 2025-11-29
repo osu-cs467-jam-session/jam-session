@@ -26,7 +26,14 @@ export default function TestUploadPage() {
   const { user, isLoaded } = useUser()
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<{
+    filename: string;
+    originalName: string;
+    filePath: string;
+    size: number;
+    type: string;
+    uploadedAt?: string;
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

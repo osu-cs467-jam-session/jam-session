@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react'
+import { useState, useEffect, useImperativeHandle, forwardRef } from 'react'
 import type { Post } from '@/types/post'
 import { fetchPosts } from '@/lib/api/client'
 import PostCard from './PostCard'
@@ -43,6 +43,7 @@ const PostList = forwardRef<PostListRef, PostListProps>(({ userId }, ref) => {
 
   useEffect(() => {
     loadPosts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
   if (loading) {
