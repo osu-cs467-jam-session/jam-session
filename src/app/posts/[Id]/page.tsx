@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { IPost } from "@/types/post";
+import type { IComment } from "@/types/comment";
 
 export default function PostPage() {
     const params = useParams();
@@ -26,6 +27,18 @@ export default function PostPage() {
             })
             .catch((err) => {
                 console.error("Error fetching post:", err);
+            });
+        fetch(`/api/comments?parentId=${Id}`)
+            .then((res) => {
+                if (!res.ok) throw new Error("API response was not ok");
+                return res.json();
+            })
+            .then((data) => {
+                if (!mounted) return;
+                console.log("Fetched comments for post:", data);
+            })
+            .catch((err) => {
+                console.error("Error fetching comments for post:", err);
             });
 
         return () => {
