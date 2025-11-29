@@ -6,7 +6,8 @@ import { convertStringIdToObjectId } from "./helper_functions";
 
 export interface IPost {
     _id: mongoose.Types.ObjectId; // MongoDB ObjectId
-    userId: mongoose.Types.ObjectId | string; // Can be MongoDB ObjectId or Clerk ID string
+    userId: string; // Clerk ID (clerkUserId) - stored as string
+    userName?: string; // Optional username for easy display
     title: string;
     body: string;
     date?: Date;
@@ -18,7 +19,8 @@ export interface IPost {
 // Post schema
 const PostSchema = new mongoose.Schema<IPost>(
     {
-        userId: { type: mongoose.Schema.Types.Mixed, required: true }, // Can be ObjectId or Clerk ID string
+        userId: { type: String, required: true }, // Clerk ID (clerkUserId) - stored as string
+        userName: { type: String, required: false }, // Optional username for easy display
         title: { type: String, required: true },
         body: { type: String, required: true },
         date: { type: Date, default: Date.now },

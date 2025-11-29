@@ -47,20 +47,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Wrap with ThemeProvider for dark/light mode management */}
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="min-h-screen">
-            {/* navigation bar at top of app */}
-            <NavBar />
-            <main className="py-8">
-              <div className="max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  <div className="lg:col-span-9">{children}</div>
-                </div>
-              </div>
-            </main>
-          </div>
-        </ThemeProvider>
+        {/* Wrap with ClerkProvider to handle authentication context */}
+        <ClerkProvider>
+          {/* Wrap with ThemeProvider for dark/light mode management */}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <div className="min-h-screen">
+              {/* navigation bar at top of app */}
+              <NavBar />
+              <main className="py-8">
+                <div className="">{children}</div>
+              </main>
+            </div>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

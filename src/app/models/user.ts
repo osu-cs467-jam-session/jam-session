@@ -105,6 +105,23 @@ export async function getUserByUsername(username: string): Promise<IUser | null>
   }
 }
 
+/**
+ * Fetch a user by Clerk ID (clerkId field in User model).
+ * 
+ * @param clerkId - Clerk user ID to search for.
+ * @returns User object or null if not found.
+ */
+export async function getUserByClerkId(clerkId: string): Promise<IUser | null> {
+    await connectToDatabase();
+    try {
+        const user = await UserModel.findOne({ clerkId }).lean();
+        return user as unknown as IUser | null;
+    } catch (error) {
+        console.error(`Error fetching user by Clerk ID (${clerkId}):`, error);
+        throw new Error("Failed to fetch user by Clerk ID");
+    }
+}
+
 // Update Operations
 export async function updateUser(userId: string, update: Partial<IUser>): Promise<IUser | null> {
     await connectToDatabase();

@@ -1,22 +1,38 @@
 // Frontend types matching backend IPost interface
 
+import mongoose from "mongoose";
+
 export type SkillLevel = "Amateur" | "Advanced Amateur" | "Proficient" | "Intermediate" | "Professional";
 export type Instrument = "Drums" | "Bass" | "Guitar" | "Piano" | "Vocals";
 export type Genre = "Rock" | "Pop" | "Metal" | "Jazz" | "R&B";
 
 export interface Post {
   _id: string;
-  userId: string; // Can be Clerk ID or MongoDB ObjectId
+  userId: string; // Clerk ID (clerkUserId)
+  userName?: string; // Optional username for easy display
   title: string;
   body: string;
-  date?: string;
+  date?: string | Date;
   tags?: string[]; // Structured: ["skill:amateur", "instrument:guitar", "genre:rock"]
   audioUploadId?: string;
   albumArtUrl?: string;
 }
 
+export interface IPost {
+  _id: string; // MongoDB ObjectId
+  userId: string; // Clerk ID (clerkUserId)
+  userName?: string; // Optional username for easy display
+  title: string;
+  body: string;
+  date?: Date;
+  tags?: string[];
+  audioUploadId?: mongoose.Types.ObjectId;
+  albumArtUrl?: string;
+}
+
 export interface CreatePostInput {
-  userId: string; // Clerk ID
+  userId: string; // Clerk ID (clerkUserId)
+  userName?: string; // Optional username
   title: string;
   body: string;
   tags?: string[];

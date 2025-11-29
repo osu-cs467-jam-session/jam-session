@@ -37,7 +37,7 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="flex-1">
             <h2 className="text-xl font-semibold mb-1">{post.title}</h2>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span>By {post.userId}</span>
+              <span>By {post.userName || post.userId}</span>
               <span>•</span>
               <time dateTime={post.date}>{formatDate(post.date)}</time>
             </div>

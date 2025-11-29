@@ -13,6 +13,7 @@ import {
   updatePost,
   deletePost,
 } from "@/app/models/post";
+import Profile from "@/app/models/profile";
 
 /** GET: Fetch posts: all, by ID, or by userId */
 export async function GET(request: Request) {
@@ -66,25 +67,36 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Validate user id (can be Clerk ID string or MongoDB ObjectId)
-    if (!body.userId) {
+    // Validate user id (must be Clerk ID string)
+    if (!body.userId || typeof body.userId !== 'string') {
       return NextResponse.json(
-        { success: false, error: "Invalid or missing userId" },
+        { success: false, error: "Invalid or missing userId (must be Clerk ID)" },
         { status: 400 }
       );
     }
 
-    // userId can be Clerk ID (string) or MongoDB ObjectId
-    // If it's a valid ObjectId, convert it; otherwise use as string (Clerk ID)
-    let userId: mongoose.Types.ObjectId | string = body.userId;
-    if (mongoose.Types.ObjectId.isValid(body.userId)) {
-      userId = new mongoose.Types.ObjectId(body.userId);
+    // userId is Clerk ID (string) - this is the clerkUserId
+    const userId: string = body.userId;
+
+    // Try to fetch username from profile using clerkUserId
+    let userName: string | undefined = body.userName;
+    if (!userName) {
+      try {
+        const profile = await Profile.findOne({ clerkUserId: userId }).lean();
+        if (profile?.username) {
+          userName = profile.username;
+        }
+      } catch (profileError) {
+        // If profile lookup fails, continue without username
+        console.log("Could not fetch username from profile:", profileError);
+      }
     }
 
     // Create new post
     const newPost = await createPost({
       _id: new mongoose.Types.ObjectId(),
-      userId: userId,
+      userId: userId, // Clerk ID (clerkUserId) as string
+      userName: userName, // Optional username from profile or request
       title: body.title,
       body: body.body,
       tags: body.tags || [],
