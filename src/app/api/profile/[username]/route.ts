@@ -45,22 +45,19 @@ export async function GET(
 }
 
 export async function DELETE(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { username: string } }
 ) {
+  const { username } = params;
   await connectToDatabase();
-  const { username } = await params;
 
   const deletedProfile = await ProfileModel.findOneAndDelete({ username });
-
   if (!deletedProfile) {
-    return new Response(JSON.stringify({ error: "Profile not found" }), {
-      status: 404,
-    });
+    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
 
-  return new Response(
-    JSON.stringify({ message: "Profile deleted successfully" }),
+  return NextResponse.json(
+    { message: "Profile deleted successfully" },
     { status: 200 }
   );
 }
