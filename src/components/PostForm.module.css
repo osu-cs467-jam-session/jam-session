@@ -1,3 +1,5 @@
+@reference "tailwindcss";
+
 .form {
 	@apply w-full max-w-2xl p-6 border rounded-lg bg-background shadow-sm;
 }
