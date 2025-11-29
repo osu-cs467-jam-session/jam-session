@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import ProfileModel from "@/app/models/profile";
 import { connectToDatabase } from "@/app/lib/database";
 
@@ -42,4 +42,27 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { username: string } }
+) {
+  await connectToDatabase();
+
+  // unwrap the params promise
+  const { username } = await params;
+
+  const deletedProfile = await ProfileModel.findOneAndDelete({ username });
+
+  if (!deletedProfile) {
+    return new Response(JSON.stringify({ error: "Profile not found" }), {
+      status: 404,
+    });
+  }
+
+  return new Response(
+    JSON.stringify({ message: "Profile deleted successfully" }),
+    { status: 200 }
+  );
 }

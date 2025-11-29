@@ -24,7 +24,30 @@ export default function ProfileCard({
   const router = useRouter();
   const isOwner = userId === clerkUserId;
 
-  console.log("Logged in:", userId, "Profile owner:", clerkUserId);
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your profile? This cannot be undone."
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/profile/${username}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Failed to delete profile.");
+        return;
+      }
+
+      alert("Profile deleted successfully!");
+      router.push("/"); // redirect to home
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while deleting your profile.");
+    }
+  };
 
   return (
     <Card className="max-w-sm w-full bg-white border border-gray-200 rounded-2xl p-6">
@@ -50,12 +73,20 @@ export default function ProfileCard({
         </div>
 
         {isOwner && (
-          <button
-            onClick={() => router.push("/profile/edit")}
-            className="mt-4 w-full bg-blue-500 text-white p-2 rounded"
-          >
-            Edit Profile
-          </button>
+          <div className="flex flex-col space-y-2 mt-4">
+            <button
+              onClick={() => router.push("/profile/edit")}
+              className="w-full bg-blue-500 text-white p-2 rounded"
+            >
+              Edit Profile
+            </button>
+            <button
+              onClick={handleDelete}
+              className="w-full bg-red-500 text-white p-2 rounded"
+            >
+              Delete Profile
+            </button>
+          </div>
         )}
       </CardContent>
     </Card>
