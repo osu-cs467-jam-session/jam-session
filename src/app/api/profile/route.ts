@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-<<<<<<< HEAD
-import ProfileModel from "@/app/models/profile";
-=======
 import Profile from "@/app/models/profile";
->>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
 import { connectToDatabase } from "@/app/lib/database";
 
 // GET: return current user's profile
@@ -18,11 +14,7 @@ export async function GET() {
 
     await connectToDatabase();
 
-<<<<<<< HEAD
-    const profile = await ProfileModel.findOne({
-=======
     const profile = await Profile.findOne({
->>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
       clerkUserId: session.userId,
     }).lean();
 
@@ -35,8 +27,6 @@ export async function GET() {
     );
   }
 }
-<<<<<<< HEAD
-=======
 
 // PATCH: update current user's profile
 export async function PATCH(request: Request) {
@@ -110,4 +100,3 @@ export async function POST(request: Request) {
     );
   }
 }
->>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)

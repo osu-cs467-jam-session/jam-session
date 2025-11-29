@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface ProfileCardProps {
-  username: string;
-=======
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@clerk/nextjs";
@@ -11,8 +5,7 @@ import { useRouter } from "next/navigation";
 
 interface ProfileCardProps {
   username: string;
-  clerkUserId: string; // add this
->>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
+  clerkUserId: string;
   instrumentsArray?: string[];
   location?: string;
   preferredGenre?: string;
@@ -21,24 +14,18 @@ interface ProfileCardProps {
 
 export default function ProfileCard({
   username,
-<<<<<<< HEAD
-=======
   clerkUserId,
->>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
   instrumentsArray = [],
   location,
   preferredGenre,
   contact,
 }: ProfileCardProps) {
-<<<<<<< HEAD
-=======
   const { userId } = useAuth();
   const router = useRouter();
   const isOwner = userId === clerkUserId;
 
   console.log("Logged in:", userId, "Profile owner:", clerkUserId);
 
->>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
   return (
     <Card className="max-w-sm w-full bg-white border border-gray-200 rounded-2xl p-6">
       <CardHeader className="space-y-2 pb-4">
@@ -61,8 +48,6 @@ export default function ProfileCard({
           <span className="font-medium text-gray-700">Contact:</span>{" "}
           {contact?.trim() || "N/A"}
         </div>
-<<<<<<< HEAD
-=======
 
         {isOwner && (
           <button
@@ -72,7 +57,6 @@ export default function ProfileCard({
             Edit Profile
           </button>
         )}
->>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
       </CardContent>
     </Card>
   );
