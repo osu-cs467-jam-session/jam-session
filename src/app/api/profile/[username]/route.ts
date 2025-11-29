@@ -49,8 +49,6 @@ export async function DELETE(
   { params }: { params: { username: string } }
 ) {
   await connectToDatabase();
-
-  // unwrap the params promise
   const { username } = await params;
 
   const deletedProfile = await ProfileModel.findOneAndDelete({ username });
