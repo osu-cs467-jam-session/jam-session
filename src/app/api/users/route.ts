@@ -11,9 +11,10 @@ import {
 import mongoose from "mongoose";
 
 export type SafeUser = Omit<IUser, "hashedPassword">;
+// export type SafeUser = Omit<IUser, "hashedPassword">;
 
 function excludeHashedPassword(user: IUser): SafeUser {
-  const { hashedPassword, ...rest } = user;
+  const { hashedPassword, ...rest } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
   return rest;
 }
 
