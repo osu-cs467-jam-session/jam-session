@@ -1,5 +1,3 @@
-// API client utilities for making requests to backend
-
 import type { Post, CreatePostInput } from "@/types/post";
 
 const API_BASE = "/api";
@@ -10,7 +8,7 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-// Generic fetch wrapper with error handling
+// generic fetch wrapper
 async function apiRequest<T>(
   endpoint: string,
   options?: RequestInit
@@ -36,7 +34,7 @@ async function apiRequest<T>(
   return data.data;
 }
 
-// Posts API
+// posts API
 export async function fetchPosts(filters?: {
   userId?: string;
   id?: string;

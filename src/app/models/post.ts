@@ -2,8 +2,6 @@
 import mongoose from "mongoose";
 import { convertStringIdToObjectId } from "./helper_functions";
 
-// Define Types
-
 export interface IPost {
     _id: mongoose.Types.ObjectId; // MongoDB ObjectId
     userId: string; // Clerk ID (clerkUserId) - stored as string
@@ -16,7 +14,7 @@ export interface IPost {
     albumArtUrl?: string; // Optional URL to album art image
 }
 
-// Post schema
+// post schema
 const PostSchema = new mongoose.Schema<IPost>(
     {
         userId: { type: String, required: true }, // Clerk ID (clerkUserId) - stored as string
@@ -30,12 +28,12 @@ const PostSchema = new mongoose.Schema<IPost>(
     }
 );
 
-// Use existing model if it exists (prevents OverwriteModelError during hot reload)
+// prevent model overwrite on hot reload
 const PostModel = mongoose.models.Post as mongoose.Model<IPost>
     || mongoose.model<IPost>("Post", PostSchema);
 
 
-// Create Operations
+// create
 export async function createPost(data: IPost): Promise<IPost> {
     try {
         const created = await PostModel.create(data);
@@ -47,7 +45,7 @@ export async function createPost(data: IPost): Promise<IPost> {
     }
 }
 
-// Read Operations
+// read
 
 export async function getPosts(): Promise<IPost[]> {
     try {
@@ -73,7 +71,7 @@ export async function getPostById(id: string): Promise<IPost | null> {
 }
 
 
-// Update Operations
+// update
 
 export async function updatePost(id: string, data: Partial<IPost>): Promise<IPost | null> {
     try {
@@ -87,7 +85,7 @@ export async function updatePost(id: string, data: Partial<IPost>): Promise<IPos
     }
 }
 
-// Delete Operations
+// delete
 
 export async function deletePost(id: string): Promise<IPost | null> {
     try {

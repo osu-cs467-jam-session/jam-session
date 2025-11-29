@@ -1,8 +1,3 @@
-/**
- * Post API Routes
- * Handles CRUD operations for user posts.
- */
-
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/app/lib/database";
@@ -15,7 +10,7 @@ import {
 } from "@/app/models/post";
 import Profile from "@/app/models/profile";
 
-/** GET: Fetch posts: all, by ID, or by userId */
+// GET: fetch posts (all, by id, or by userId)
 export async function GET(request: Request) {
   await connectToDatabase();
   const { searchParams } = new URL(request.url);
@@ -61,13 +56,13 @@ export async function GET(request: Request) {
   }
 }
 
-/** POST: Create a new post */
+// POST: create a new post
 export async function POST(request: Request) {
   await connectToDatabase();
   try {
     const body = await request.json();
 
-    // Validate user id (must be Clerk ID string)
+    // validate userId (needs to be Clerk ID string)
     if (!body.userId || typeof body.userId !== 'string') {
       return NextResponse.json(
         { success: false, error: "Invalid or missing userId (must be Clerk ID)" },
@@ -75,10 +70,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // userId is Clerk ID (string) - this is the clerkUserId
     const userId: string = body.userId;
 
-    // Try to fetch username from profile using clerkUserId
+    // try to get username from profile, fallback to body or undefined
     let userName: string | undefined = body.userName;
     if (!userName) {
       try {
@@ -87,12 +81,10 @@ export async function POST(request: Request) {
           userName = profile.username;
         }
       } catch (profileError) {
-        // If profile lookup fails, continue without username
+        // if profile lookup fails, just continue without username
         console.log("Could not fetch username from profile:", profileError);
       }
     }
-
-    // Create new post
     const newPost = await createPost({
       _id: new mongoose.Types.ObjectId(),
       userId: userId, // Clerk ID (clerkUserId) as string
@@ -115,13 +107,13 @@ export async function POST(request: Request) {
   }
 }
 
-/** PUT: Update an existing post */
+// PUT: update existing post
 export async function PUT(request: Request) {
   await connectToDatabase();
   try {
     const body = await request.json();
 
-    // Validate post id
+    // validate post id
     if (!body._id || !mongoose.Types.ObjectId.isValid(body._id)) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing ID" },
@@ -146,14 +138,14 @@ export async function PUT(request: Request) {
   }
 }
 
-/** DELETE: Remove a post by id */
+// DELETE: remove post by id
 export async function DELETE(request: Request) {
   await connectToDatabase();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
   try {
-    // Validate id
+    // validate id
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing ID" },

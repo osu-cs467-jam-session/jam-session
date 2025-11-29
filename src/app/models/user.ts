@@ -1,10 +1,6 @@
-// Code was adapted from GPT-5 mini model on 10/22/2025
-
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/app/lib/database";
 import { convertStringIdToObjectId } from "./helper_functions";
-
-// User shape used by the app
 export interface IUser {
     _id?: mongoose.Types.ObjectId; // MongoDB ObjectId
     username: string;
@@ -17,7 +13,7 @@ export interface IUser {
     clerkId?: string; // Link to Clerk user ID
 }
 
-// User schema (use default ObjectId _id provided by MongoDB)
+// user schema
 const UserSchema = new mongoose.Schema<IUser>(
     {
         username: { type: String, required: true, unique: true },
@@ -31,11 +27,11 @@ const UserSchema = new mongoose.Schema<IUser>(
     }
 );
 
-// Use existing model if it exists (prevents OverwriteModelError during hot reload)
+// prevent model overwrite on hot reload
 const UserModel = mongoose.models.User as mongoose.Model<IUser>
     || mongoose.model<IUser>("User", UserSchema);
 
-// Create Operations
+// create
 export async function createUser(data: IUser): Promise<IUser> {
     await connectToDatabase();
     try {
@@ -59,7 +55,7 @@ export async function createUser(data: IUser): Promise<IUser> {
 
 }
 
-// Read Operations
+// read
 export async function getUsers(): Promise<IUser[]> {
     await connectToDatabase();
     try {
@@ -75,7 +71,6 @@ export async function getUsers(): Promise<IUser[]> {
 export async function getUserById(userId: string): Promise<IUser | null> {
     await connectToDatabase();
     try {
-        // Convert string to ObjectId type
         const id = convertStringIdToObjectId(userId);
         const user = await UserModel.findById(id).lean();
         return user as unknown as IUser | null;
@@ -86,31 +81,18 @@ export async function getUserById(userId: string): Promise<IUser | null> {
     }
 }
 
-/**
- * Fetch a user by username.
- * 
- * @param username - Username to search for.
- * @returns User object or null if not found.
- */
 export async function getUserByUsername(username: string): Promise<IUser | null> {
     await connectToDatabase();
   try {
-    // Find user and return as plain object
     const user = await UserModel.findOne({ username }).lean();
     return user as unknown as IUser | null;
   } catch (error) {
-    // Log error and rethrow
     console.error(`Error fetching user by username (${username}):`, error);
     throw new Error("Failed to fetch user by username");
   }
 }
 
-/**
- * Fetch a user by Clerk ID (clerkId field in User model).
- * 
- * @param clerkId - Clerk user ID to search for.
- * @returns User object or null if not found.
- */
+// fetch user by Clerk ID
 export async function getUserByClerkId(clerkId: string): Promise<IUser | null> {
     await connectToDatabase();
     try {
@@ -122,7 +104,7 @@ export async function getUserByClerkId(clerkId: string): Promise<IUser | null> {
     }
 }
 
-// Update Operations
+// update
 export async function updateUser(userId: string, update: Partial<IUser>): Promise<IUser | null> {
     await connectToDatabase();
     try {
@@ -136,7 +118,7 @@ export async function updateUser(userId: string, update: Partial<IUser>): Promis
     }
 }
 
-// Delete Operations
+// delete
 export async function deleteUser(userId: string): Promise<IUser | null> {
     await connectToDatabase();
     try {
