@@ -23,8 +23,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <ClerkProvider>
+  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  
+  const content = (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -32,6 +33,16 @@ export default function RootLayout({
         {children}
       </body>
     </html>
-    </ClerkProvider>
   );
+
+  // Only wrap with ClerkProvider if key is available
+  if (clerkPublishableKey) {
+    return (
+      <ClerkProvider publishableKey={clerkPublishableKey}>
+        {content}
+      </ClerkProvider>
+    );
+  }
+
+  return content;
 }
