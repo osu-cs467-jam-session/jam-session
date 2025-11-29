@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+<<<<<<< HEAD
 import ProfileModel from "@/app/models/profile";
+=======
+import Profile from "@/app/models/profile";
+>>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
 import { connectToDatabase } from "@/app/lib/database";
 
 // GET: return current user's profile
@@ -14,7 +18,11 @@ export async function GET() {
 
     await connectToDatabase();
 
+<<<<<<< HEAD
     const profile = await ProfileModel.findOne({
+=======
+    const profile = await Profile.findOne({
+>>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
       clerkUserId: session.userId,
     }).lean();
 
@@ -27,3 +35,79 @@ export async function GET() {
     );
   }
 }
+<<<<<<< HEAD
+=======
+
+// PATCH: update current user's profile
+export async function PATCH(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const data = await request.json();
+
+    await connectToDatabase();
+
+    const updatedProfile = await Profile.findOneAndUpdate(
+      { clerkUserId: session.userId },
+      { $set: data },
+      { new: true, runValidators: true } // return updated doc & enforce schema
+    ).lean();
+
+    if (!updatedProfile) {
+      return NextResponse.json(
+        { success: false, error: "Profile not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: updatedProfile });
+  } catch (error) {
+    console.error("PATCH /api/profile error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update profile" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST: create new profile for current user
+export async function POST(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const data = await request.json();
+
+    await connectToDatabase();
+
+    // optionally check if profile already exists
+    const existing = await Profile.findOne({
+      clerkUserId: session.userId,
+    });
+    if (existing) {
+      return NextResponse.json(
+        { success: false, error: "Profile already exists" },
+        { status: 400 }
+      );
+    }
+
+    const profile = await Profile.create({
+      ...data,
+      clerkUserId: session.userId,
+    });
+
+    return NextResponse.json({ success: true, data: profile }, { status: 201 });
+  } catch (error) {
+    console.error("POST /api/profile error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to create profile" },
+      { status: 500 }
+    );
+  }
+}
+>>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)

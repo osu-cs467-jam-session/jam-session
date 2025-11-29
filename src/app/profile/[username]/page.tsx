@@ -37,10 +37,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     <div className="flex justify-center">
       <ProfileCard
         username={user.username}
+<<<<<<< HEAD
         instrumentsArray={user.instrumentsArray || []} // fallback if empty
         location={user.location}
         preferredGenre={user.preferredGenre}
         contact={user.contact}
+=======
+        instrumentsArray={user.instrumentsArray || []}
+        location={user.location}
+        preferredGenre={user.preferredGenre}
+        contact={user.contact}
+        clerkUserId={user.clerkUserId}
+>>>>>>> f396a51 (Reinitialize repo and reconnect to GitHub)
       />
     </div>
   );
