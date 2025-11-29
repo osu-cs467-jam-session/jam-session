@@ -1,8 +1,3 @@
-/**
- * Post API Routes
- * Handles CRUD operations for user posts.
- */
-
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/app/lib/database";
@@ -13,8 +8,9 @@ import {
   updatePost,
   deletePost,
 } from "@/app/models/post";
+import Profile from "@/app/models/profile";
 
-/** GET: Fetch posts: all, by ID, or by userId */
+// GET: fetch posts (all, by id, or by userId)
 export async function GET(request: Request) {
   await connectToDatabase();
   const { searchParams } = new URL(request.url);
@@ -41,12 +37,6 @@ export async function GET(request: Request) {
 
     // Get posts by userId
     if (userId) {
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid userId format" },
-          { status: 400 }
-        );
-      }
       const posts = await getPosts();
       const userPosts = posts.filter(
         (p) => p.userId.toString() === userId.toString()
@@ -66,29 +56,45 @@ export async function GET(request: Request) {
   }
 }
 
-/** POST: Create a new post */
+// POST: create a new post
 export async function POST(request: Request) {
   await connectToDatabase();
   try {
     const body = await request.json();
 
-    // Validate user id
-    if (!body.userId || !mongoose.Types.ObjectId.isValid(body.userId)) {
+    // validate userId (needs to be Clerk ID string)
+    if (!body.userId || typeof body.userId !== 'string') {
       return NextResponse.json(
-        { success: false, error: "Invalid or missing userId" },
+        { success: false, error: "Invalid or missing userId (must be Clerk ID)" },
         { status: 400 }
       );
     }
 
-    // Create new post
+    const userId: string = body.userId;
+
+    // try to get username from profile, fallback to body or undefined
+    let userName: string | undefined = body.userName;
+    if (!userName) {
+      try {
+        const profile = await Profile.findOne({ clerkUserId: userId }).lean() as { username?: string; clerkUserId: string } | null;
+        if (profile?.username) {
+          userName = profile.username;
+        }
+      } catch (profileError) {
+        // if profile lookup fails, just continue without username
+        console.log("Could not fetch username from profile:", profileError);
+      }
+    }
     const newPost = await createPost({
       _id: new mongoose.Types.ObjectId(),
-      userId: new mongoose.Types.ObjectId(body.userId),
-      userName: body.userName,
+      userId: userId, // Clerk ID (clerkUserId) as string
+      userName: userName, // Optional username from profile or request
       title: body.title,
       body: body.body,
       tags: body.tags || [],
       date: new Date(),
+      audioUploadId: body.audioUploadId ? new mongoose.Types.ObjectId(body.audioUploadId) : undefined,
+      albumArtUrl: body.albumArtUrl || undefined,
     });
 
     return NextResponse.json({ success: true, data: newPost }, { status: 201 });
@@ -101,13 +107,13 @@ export async function POST(request: Request) {
   }
 }
 
-/** PUT: Update an existing post */
+// PUT: update existing post
 export async function PUT(request: Request) {
   await connectToDatabase();
   try {
     const body = await request.json();
 
-    // Validate post id
+    // validate post id
     if (!body._id || !mongoose.Types.ObjectId.isValid(body._id)) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing ID" },
@@ -132,14 +138,14 @@ export async function PUT(request: Request) {
   }
 }
 
-/** DELETE: Remove a post by id */
+// DELETE: remove post by id
 export async function DELETE(request: Request) {
   await connectToDatabase();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
   try {
-    // Validate id
+    // validate id
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing ID" },

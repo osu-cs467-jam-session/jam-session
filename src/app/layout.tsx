@@ -36,8 +36,12 @@ export const metadata: Metadata = {
 // Root layout component
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
-  return (
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  
+  const content = (
     <html lang="en">
       {/* Body contains all visible content */}
       <body
@@ -59,4 +63,15 @@ export default function RootLayout({
       </body>
     </html>
   );
+
+  // Only wrap with ClerkProvider if key is available
+  if (clerkPublishableKey) {
+    return (
+      <ClerkProvider publishableKey={clerkPublishableKey}>
+        {content}
+      </ClerkProvider>
+    );
+  }
+
+  return content;
 }
