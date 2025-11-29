@@ -84,6 +84,7 @@ export async function POST(request: Request) {
     const newPost = await createPost({
       _id: new mongoose.Types.ObjectId(),
       userId: new mongoose.Types.ObjectId(body.userId),
+      userName: body.userName,
       title: body.title,
       body: body.body,
       tags: body.tags || [],

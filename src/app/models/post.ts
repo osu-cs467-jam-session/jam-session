@@ -7,6 +7,7 @@ import { convertStringIdToObjectId } from "./helper_functions";
 export interface IPost {
     _id: mongoose.Types.ObjectId; // MongoDB ObjectId
     userId: mongoose.Types.ObjectId; // Reference to User's ObjectId
+    userName: string;
     title: string;
     body: string;
     date?: Date;
@@ -17,6 +18,7 @@ export interface IPost {
 const PostSchema = new mongoose.Schema<IPost>(
     {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        userName: { type: String, required: true },
         title: { type: String, required: true },
         body: { type: String, required: true },
         date: { type: Date, default: Date.now },
