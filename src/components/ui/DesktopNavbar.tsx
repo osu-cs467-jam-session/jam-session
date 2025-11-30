@@ -59,7 +59,7 @@ async function DesktopNavbar() {
 
           {/* Browse Profiles */}
           <Button variant="ghost" className="flex items-center gap-2" asChild>
-            <Link href="/profile">
+            <Link href="/profile/search">
               <UsersIcon className="w-4 h-4" />
               <span className="hidden lg:inline">Browse Profiles</span>
             </Link>
