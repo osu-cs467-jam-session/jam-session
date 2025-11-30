@@ -2,7 +2,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect, useRef } from 'react';
-import Comments from '@/components/ui/Comments/comments';
+import Comments from '@/components/CommentsBtn';
 import PostForm from '@/components/PostForm';
 import PostList, { type PostListRef } from '@/components/PostList';
 import type { IPost } from '@/types/post';
@@ -31,11 +31,6 @@ export default function Home() {
         console.error('Error fetching posts:', error);
       });
   }, []);
-
-  function handleClick(postId: string) {
-    console.log("Comments clicked");
-    router.push('/posts/' + postId);
-  }
 
   const handlePostCreated = async () => {
     // Refresh both the old posts list and the new PostList component
@@ -78,7 +73,7 @@ export default function Home() {
         <PostList ref={postListRef} />
       </div>
 
-      {/* Legacy posts display (keeping for compatibility) */}
+      {/* Legacy posts display (keeping for compatibility)
       <div id='postsContainer' className="w-full max-w-2xl">
         {posts.map((post) => (
           <div key={post._id} className="border rounded-sm p-4 mb-4 w-full bg-primary-foreground">
@@ -98,6 +93,7 @@ export default function Home() {
           </div>
         ))}
       </div>
+       */}
     </section>
   );
 }

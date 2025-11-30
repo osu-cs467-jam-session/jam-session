@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Post } from '@/types/post'
 import { getTagsByType } from '@/types/post'
 import Image from 'next/image'
+import CommentsBtn from './CommentsBtn'
 
 type PostCardProps = {
   post: Post
@@ -32,8 +33,8 @@ export default function PostCard({ post }: PostCardProps) {
   }
 
   // Truncate body for preview
-  const preview = post.body && post.body.length > 200 
-    ? post.body.substring(0, 200) + '...' 
+  const preview = post.body && post.body.length > 200
+    ? post.body.substring(0, 200) + '...'
     : post.body || ''
 
   return (
@@ -105,6 +106,7 @@ export default function PostCard({ post }: PostCardProps) {
               🎵 Audio attached
             </span>
           )}
+          <CommentsBtn parentId={post._id} />
         </div>
       </article>
     </Link>
