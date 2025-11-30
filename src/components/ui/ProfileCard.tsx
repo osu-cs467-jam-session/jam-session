@@ -1,7 +1,11 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 interface ProfileCardProps {
   username: string;
+  clerkUserId: string;
   instrumentsArray?: string[];
   location?: string;
   preferredGenre?: string;
@@ -10,11 +14,41 @@ interface ProfileCardProps {
 
 export default function ProfileCard({
   username,
+  clerkUserId,
   instrumentsArray = [],
   location,
   preferredGenre,
   contact,
 }: ProfileCardProps) {
+  const { userId } = useAuth();
+  const router = useRouter();
+  const isOwner = userId === clerkUserId;
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your profile? This cannot be undone."
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/profile/${username}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Failed to delete profile.");
+        return;
+      }
+
+      alert("Profile deleted successfully!");
+      router.push("/"); // redirect to home
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while deleting your profile.");
+    }
+  };
+
   return (
     <Card className="max-w-sm w-full bg-white border border-gray-200 rounded-2xl p-6">
       <CardHeader className="space-y-2 pb-4">
@@ -37,6 +71,23 @@ export default function ProfileCard({
           <span className="font-medium text-gray-700">Contact:</span>{" "}
           {contact?.trim() || "N/A"}
         </div>
+
+        {isOwner && (
+          <div className="flex flex-col space-y-2 mt-4">
+            <button
+              onClick={() => router.push("/profile/edit")}
+              className="w-full bg-blue-500 text-white p-2 rounded"
+            >
+              Edit Profile
+            </button>
+            <button
+              onClick={handleDelete}
+              className="w-full bg-red-500 text-white p-2 rounded"
+            >
+              Delete Profile
+            </button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
