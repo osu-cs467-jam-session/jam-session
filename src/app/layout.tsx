@@ -36,8 +36,12 @@ export const metadata: Metadata = {
 // Root layout component
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
-  return (
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  
+  const content = (
     <html lang="en">
       {/* Body contains all visible content */}
       <body
@@ -51,11 +55,7 @@ export default function RootLayout({
               {/* navigation bar at top of app */}
               <NavBar />
               <main className="py-8">
-                <div className="max-w-7xl mx-auto px-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div className="lg:col-span-9">{children}</div>
-                  </div>
-                </div>
+                <div className="">{children}</div>
               </main>
             </div>
           </ThemeProvider>
@@ -63,4 +63,15 @@ export default function RootLayout({
       </body>
     </html>
   );
+
+  // Only wrap with ClerkProvider if key is available
+  if (clerkPublishableKey) {
+    return (
+      <ClerkProvider publishableKey={clerkPublishableKey}>
+        {content}
+      </ClerkProvider>
+    );
+  }
+
+  return content;
 }

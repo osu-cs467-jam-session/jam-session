@@ -2,34 +2,38 @@
 import mongoose from "mongoose";
 import { convertStringIdToObjectId } from "./helper_functions";
 
-// Define Types
-
 export interface IPost {
     _id: mongoose.Types.ObjectId; // MongoDB ObjectId
-    userId: mongoose.Types.ObjectId; // Reference to User's ObjectId
+    userId: string; // Clerk ID (clerkUserId) - stored as string
+    userName?: string; // Optional username for easy display
     title: string;
     body: string;
     date?: Date;
-    tags?: string[];
+    tags?: string[]; // Structured tags: ["skill:amateur", "instrument:guitar", "genre:rock"]
+    audioUploadId?: mongoose.Types.ObjectId; // Optional reference to AudioUpload
+    albumArtUrl?: string; // Optional URL to album art image
 }
 
-// Post schema
+// post schema
 const PostSchema = new mongoose.Schema<IPost>(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        userId: { type: String, required: true }, // Clerk ID (clerkUserId) - stored as string
+        userName: { type: String, required: false }, // Optional username for easy display
         title: { type: String, required: true },
         body: { type: String, required: true },
         date: { type: Date, default: Date.now },
         tags: { type: [String], default: [] },
+        audioUploadId: { type: mongoose.Schema.Types.ObjectId, ref: "AudioUpload", required: false },
+        albumArtUrl: { type: String, required: false },
     }
 );
 
-// Use existing model if it exists (prevents OverwriteModelError during hot reload)
+// prevent model overwrite on hot reload
 const PostModel = mongoose.models.Post as mongoose.Model<IPost>
     || mongoose.model<IPost>("Post", PostSchema);
 
 
-// Create Operations
+// create
 export async function createPost(data: IPost): Promise<IPost> {
     try {
         const created = await PostModel.create(data);
@@ -41,7 +45,7 @@ export async function createPost(data: IPost): Promise<IPost> {
     }
 }
 
-// Read Operations
+// read
 
 export async function getPosts(): Promise<IPost[]> {
     try {
@@ -67,7 +71,7 @@ export async function getPostById(id: string): Promise<IPost | null> {
 }
 
 
-// Update Operations
+// update
 
 export async function updatePost(id: string, data: Partial<IPost>): Promise<IPost | null> {
     try {
@@ -81,7 +85,7 @@ export async function updatePost(id: string, data: Partial<IPost>): Promise<IPos
     }
 }
 
-// Delete Operations
+// delete
 
 export async function deletePost(id: string): Promise<IPost | null> {
     try {
