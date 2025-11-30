@@ -2,9 +2,12 @@
 
 export async function getUserProfile(username: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/profile/${username}`, {
-      cache: "no-store", // ensures fresh data every request
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/profile/${username}`,
+      {
+        cache: "no-store", // ensures fresh data every request
+      }
+    );
 
     if (!res.ok) {
       throw new Error(`Failed to fetch profile: ${res.status}`);
