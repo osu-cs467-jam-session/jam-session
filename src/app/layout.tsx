@@ -43,28 +43,22 @@ export default function RootLayout({
   
   const content = (
     <html lang="en">
-      {/* Body contains all visible content */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Wrap with ClerkProvider to handle authentication context */}
-        <ClerkProvider>
-          {/* Wrap with ThemeProvider for dark/light mode management */}
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="min-h-screen">
-              {/* navigation bar at top of app */}
-              <NavBar />
-              <main className="py-8">
-                <div className="">{children}</div>
-              </main>
-            </div>
-          </ThemeProvider>
-        </ClerkProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="min-h-screen">
+            <NavBar />
+            <main className="py-8">
+              <div className="">{children}</div>
+            </main>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
 
-  // Only wrap with ClerkProvider if key is available
+  // wrap with ClerkProvider if key is available
   if (clerkPublishableKey) {
     return (
       <ClerkProvider publishableKey={clerkPublishableKey}>
@@ -73,5 +67,6 @@ export default function RootLayout({
     );
   }
 
+  // fallback for build time when env vars might not be set
   return content;
 }
