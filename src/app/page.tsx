@@ -2,7 +2,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect, useRef } from 'react';
-import Comments from '@/components/CommentsBtn';
 import PostForm from '@/components/PostForm';
 import PostList, { type PostListRef } from '@/components/PostList';
 import type { IPost } from '@/types/post';

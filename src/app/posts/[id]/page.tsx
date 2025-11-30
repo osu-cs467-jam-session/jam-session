@@ -1,5 +1,5 @@
 "use client";
-
+import { useAuth } from "@clerk/nextjs";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import type { IPost } from "@/types/post";
@@ -11,6 +11,8 @@ export default function PostPage() {
     const id = params?.id as string | undefined;
     const [post, setPost] = useState<IPost | null>(null);
     const [comments, setComments] = useState<IComment[]>([]);
+    const [commentText, setCommentText] = useState<string>("");
+    const { userId } = useAuth();
 
     useEffect(() => {
         if (!id) return;
@@ -58,8 +60,9 @@ export default function PostPage() {
         };
     }, [id]);
 
-    async function handleAddComment(text: string) {
+    async function handleAddComment() {
         if (!id) return;
+        console.log("Comment: ", commentText, "user:", userId, "parent:", id);
 
         try {
             const response = await fetch('/api/comments', {
@@ -69,7 +72,8 @@ export default function PostPage() {
                 },
                 body: JSON.stringify({
                     parentId: id,
-                    text,
+                    comment: commentText,
+                    date: new Date().toISOString(),
                 }),
             });
             const data = await response.json();
@@ -77,10 +81,19 @@ export default function PostPage() {
                 throw new Error(data.error || 'Failed to add comment');
             }
             // Update comments list
+            console.log('Added comment:', data);
             setComments((prevComments) => [...prevComments, data.data]);
+
+            // Reset comment text
+            setCommentText("");
         } catch (error) {
             console.error('Error adding comment:', error);
         }
+    }
+
+    async function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+        e.preventDefault();
+        setCommentText(e.target.value);
     }
 
     if (!id) {
@@ -101,16 +114,11 @@ export default function PostPage() {
                 <div className="mb-4">{post.body}</div>
             </div>
             <div className="flex flex-col items-center mt-8 border pt-4 p-8">
-                <button className="text-xs p-1 self-end border-3 rounded-xs bg-gray-400 hover:shadow-cyan hover:shadow-2xs"
-                    onClick={() => {
-                        const text = prompt("Enter your comment:");
-                        if (text) {
-                            // Here you would typically send the new comment to the server
-                            console.log("New comment submitted:", text);
-                            handleAddComment(text);
-                        }
-                    }}
-                >Add Comment +</button>
+                <h3 className="py-4">Comments</h3>
+                <div className="flex flex-col justify-between min-w-3/4">
+                    <textarea placeholder="Add comment here" className="p-5" onChange={(e) => handleTextChange(e)} />
+                    <button className="text-xs p-1 self-end border-3 m-2 rounded-xs bg-gray-400 hover:text-blue-500" onClick={() => handleAddComment()}>Submit</button>
+                </div>
                 {
                     comments.length > 0 ? (
                         comments.map((c) => (
