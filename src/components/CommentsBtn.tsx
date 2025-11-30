@@ -5,11 +5,10 @@ import { useEffect, useState } from "react";
 interface CommentsProps {
     // Define any props needed for Comments component
     parentId: string;
-    clickFn: (postId: string) => void;
 }
 
 
-export default function Comments({ parentId, clickFn }: CommentsProps) {
+export default function CommentsBtn({ parentId }: CommentsProps) {
 
     console.log("Comments component parentId:", parentId);
     const [numOfComments, setNumOfComments] = useState<number>(0);
@@ -33,7 +32,7 @@ export default function Comments({ parentId, clickFn }: CommentsProps) {
     }, [parentId]);
 
     return (
-        <div onClick={() => clickFn(parentId)} className="text-md text-accent bg-secondary-foreground sidebar-border
+        <div className="text-md text-accent bg-secondary-foreground sidebar-border
         px-2 py-1 rounded-md hover:text-chart-1 hover:bg-sidebar-ring cursor-pointer transition-colors duration-100">
             Comments: {numOfComments}
         </div>
