@@ -69,7 +69,7 @@ async function DesktopNavbar() {
           <UserButton />
         </>
       ) : (
-        // Sign In button for guests
+        // Sign In
         <SignInButton mode="modal">
           <Button variant="default">Sign In</Button>
         </SignInButton>

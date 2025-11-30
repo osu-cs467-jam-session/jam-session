@@ -48,7 +48,7 @@ export function createTag(type: "skill" | "instrument" | "genre", value: string)
 export function parseTag(tag: string): { type: "skill" | "instrument" | "genre" | "unknown"; value: string } {
   const [type, ...valueParts] = tag.split(":");
   const value = valueParts.join(":");
-  
+
   if (type === "skill" || type === "instrument" || type === "genre") {
     return { type, value };
   }

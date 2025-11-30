@@ -3,27 +3,17 @@ import { auth } from "@clerk/nextjs/server";
 import Profile from "@/app/models/profile";
 import { connectToDatabase } from "@/app/lib/database";
 
-/*
- * GET /api/profile
- * Fetch the profile of the currently authenticated user.
- * Returns:
- *   - 200 + profile data if found
- *   - 200 + null if profile does not exist
- *   - 401 if user is not authenticated
- *   - 500 on server error
- */
+// GET: return current user's profile
 export async function GET() {
   try {
-    // Get current user session
     const session = await auth();
 
     if (!session?.userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    // Connect to MongoDB
+
     await connectToDatabase();
 
-    // Find profile associated with the logged-in user
     const profile = await Profile.findOne({
       clerkUserId: session.userId,
     }).lean();
@@ -38,15 +28,7 @@ export async function GET() {
   }
 }
 
-/*
- * PATCH /api/profile
- * Update the profile of the currently authenticated user.
- * Returns:
- *   - 200 + updated profile on success
- *   - 401 if user is not authenticated
- *   - 404 if profile does not exist
- *   - 500 on server error
- */
+// PATCH: update current user's profile
 export async function PATCH(request: Request) {
   try {
     const session = await auth();
@@ -58,7 +40,6 @@ export async function PATCH(request: Request) {
 
     await connectToDatabase();
 
-    // Update profile and enforce schema validation
     const updatedProfile = await Profile.findOneAndUpdate(
       { clerkUserId: session.userId },
       { $set: data },
@@ -82,15 +63,7 @@ export async function PATCH(request: Request) {
   }
 }
 
-/*
- * POST /api/profile
- * Create a new profile for the currently authenticated user.
- * Returns:
- *   - 201 + profile data on success
- *   - 400 if profile already exists
- *   - 401 if user is not authenticated
- *   - 500 on server error
- */
+// POST: create new profile for current user
 export async function POST(request: Request) {
   try {
     const session = await auth();
@@ -102,7 +75,7 @@ export async function POST(request: Request) {
 
     await connectToDatabase();
 
-    // Check if profile already exists for the user
+    // optionally check if profile already exists
     const existing = await Profile.findOne({
       clerkUserId: session.userId,
     });
@@ -113,7 +86,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create new profile
     const profile = await Profile.create({
       ...data,
       clerkUserId: session.userId,

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export function convertStringIdToObjectId(id: string): mongoose.Types.ObjectId {
-    // Convert string data type to ObjectId Mongoose type
+    // convert string to ObjectId
     try {
         return new mongoose.Types.ObjectId(id);
     }

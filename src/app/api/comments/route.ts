@@ -73,12 +73,15 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // Validate required ids
+
+    // Removing userId as required field for testing purposes
+    /*
     if (!body.userId || !mongoose.Types.ObjectId.isValid(body.userId)) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing userId" },
         { status: 400 }
       );
-    }
+    } */
     if (!body.parentId || !mongoose.Types.ObjectId.isValid(body.parentId)) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing parentId" },
@@ -89,7 +92,7 @@ export async function POST(request: Request) {
     // Create comment
     const newComment = await createComment({
       _id: new mongoose.Types.ObjectId(),
-      userId: new mongoose.Types.ObjectId(body.userId),
+      userId: body.userId ? new mongoose.Types.ObjectId(body.userId) : undefined,
       parentType: body.parentType || "Post",
       parentId: new mongoose.Types.ObjectId(body.parentId),
       comment: body.comment,
