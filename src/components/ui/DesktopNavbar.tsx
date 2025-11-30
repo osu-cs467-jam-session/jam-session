@@ -7,6 +7,7 @@ import { SignInButton, UserButton } from "@clerk/nextjs";
 
 // Icons from lucide-react
 import {
+  BellIcon,
   HomeIcon,
   UserIcon,
   PlusIcon,
