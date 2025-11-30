@@ -1,4 +1,3 @@
-import React from "react";
 import CreateProfileForm from "@/components/ui/CreateProfileForm";
 
 export const metadata = {
