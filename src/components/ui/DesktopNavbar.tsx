@@ -36,14 +36,6 @@ async function DesktopNavbar() {
 
       {user ? (
         <>
-          {/* Notifications */}
-          <Button variant="ghost" className="flex items-center gap-2" asChild>
-            <Link href="/notifications">
-              <BellIcon className="w-4 h-4" />
-              <span className="hidden lg:inline">Notifications</span>
-            </Link>
-          </Button>
-
           {/* Profile */}
           <Button variant="ghost" className="flex items-center gap-2" asChild>
             <Link
