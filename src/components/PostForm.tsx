@@ -20,7 +20,7 @@ const GENRES: Genre[] = ["Rock", "Pop", "Metal", "Jazz", "R&B"]
 export default function PostForm({
   onPostCreated,
   maxLength = 2000,
-  placeholder = 'Post your audio here and let others know what you are looking for!',
+  placeholder = 'Share what you are looking for in a jam session!',
   submitLabel = 'Post',
 }: PostFormProps) {
   const { user, isLoaded } = useUser()
