@@ -104,12 +104,14 @@ export default function PostForm({
           uploadedAudioId = dbJson.data._id as string; 
           setAudioUploadId(uploadedAudioId); 
           setUploadProgress(100); 
-        } catch (err: any) {
-          console.error("Audio upload error:", err); 
-          setUploadError(err.message || "Audio upload failed"); 
-          setIsSubmitting(false); 
-          return; 
+         } catch (err) {
+          console.error("Audio upload error:", err);
+          const message = err instanceof Error ? err.message : "Audio upload failed";
+          setUploadError(message);
+          setIsSubmitting(false);
+          return;
         }
+        
       }
 
 

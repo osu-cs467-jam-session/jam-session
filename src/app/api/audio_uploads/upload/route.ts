@@ -82,11 +82,12 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("POST /api/audio_uploads/upload ERROR:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to upload audio file" },
+      { success: false, error: error instanceof Error ? error.message : "Failed to upload audio file" },
       { status: 500 }
     );
   }
+  
 }

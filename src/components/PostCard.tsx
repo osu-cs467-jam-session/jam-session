@@ -8,6 +8,7 @@ import CommentsBtn from './CommentsBtn'
 import { useEffect, useState } from 'react'; 
 import { fetchAudioUpload } from '@/lib/api/client'; 
 import AudioPlayer from './AudioPlayer'; 
+import type { AudioUpload } from "@/lib/api/client";
 
 
 type PostCardProps = {
@@ -41,7 +42,7 @@ export default function PostCard({ post }: PostCardProps) {
     ? post.body.substring(0, 200) + '...'
     : post.body || ''
 
-  const [audioData, setAudioData] = useState<any | null>(null); 
+  const [audioData, setAudioData] = useState<AudioUpload | null>(null); 
   const [audioLoading, setAudioLoading] = useState(false); 
   const [audioError, setAudioError] = useState<string | null>(null); 
 
