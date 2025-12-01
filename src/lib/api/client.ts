@@ -1,4 +1,5 @@
 import type { Post, CreatePostInput } from "@/types/post";
+import type { Review, CreateReviewInput } from "@/types/review";
 
 const API_BASE = "/api";
 
@@ -74,6 +75,54 @@ export async function updatePost(
 
 export async function deletePost(id: string): Promise<Post> {
   return apiRequest<Post>(`/posts?id=${id}`, {
+    method: "DELETE",
+  });
+}
+
+// reviews API
+export async function fetchReviews(filters?: {
+  id?: string;
+  postId?: string;
+}): Promise<Review[]> {
+  const params = new URLSearchParams();
+  if (filters?.id) params.append("id", filters.id);
+  if (filters?.postId) params.append("postId", filters.postId);
+
+  const query = params.toString();
+  return apiRequest<Review[]>(`/reviews${query ? `?${query}` : ""}`);
+}
+
+export async function fetchReviewById(id: string): Promise<Review> {
+  const reviews = await fetchReviews({ id });
+  if (reviews.length === 0) {
+    throw new Error("Review not found");
+  }
+  return reviews[0];
+}
+
+export async function fetchReviewsByPostId(postId: string): Promise<Review[]> {
+  return fetchReviews({ postId });
+}
+
+export async function createReview(reviewData: CreateReviewInput): Promise<Review> {
+  return apiRequest<Review>("/reviews", {
+    method: "POST",
+    body: JSON.stringify(reviewData),
+  });
+}
+
+export async function updateReview(
+  id: string,
+  updates: Partial<CreateReviewInput>
+): Promise<Review> {
+  return apiRequest<Review>("/reviews", {
+    method: "PUT",
+    body: JSON.stringify({ _id: id, ...updates }),
+  });
+}
+
+export async function deleteReview(id: string, userId: string): Promise<Review> {
+  return apiRequest<Review>(`/reviews?id=${id}&userId=${userId}`, {
     method: "DELETE",
   });
 }

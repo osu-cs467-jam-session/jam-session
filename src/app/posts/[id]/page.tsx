@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import type { IPost } from "@/types/post";
 import type { IComment } from "@/types/comment";
 import Comment from "@/components/Comment";
+import ReviewList from "@/components/ReviewList";
+import ReviewForm from "@/components/ReviewForm";
 
 export default function PostPage() {
     const params = useParams();
@@ -12,6 +14,8 @@ export default function PostPage() {
     const [post, setPost] = useState<IPost | null>(null);
     const [comments, setComments] = useState<IComment[]>([]);
     const [commentText, setCommentText] = useState<string>("");
+    const [refreshReviews, setRefreshReviews] = useState(0);
+    const [editingReview, setEditingReview] = useState<{ _id: string; rating: number; comment?: string } | null>(null);
     const { userId } = useAuth();
 
     useEffect(() => {
@@ -96,6 +100,19 @@ export default function PostPage() {
         setCommentText(e.target.value);
     }
 
+    const handleReviewCreated = () => {
+        setRefreshReviews(prev => prev + 1);
+        setEditingReview(null);
+    };
+
+    const handleReviewEdit = (review: { _id: string; rating: number; comment?: string }) => {
+        setEditingReview(review);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingReview(null);
+    };
+
     if (!id) {
         return <div>Missing post id</div>;
     }
@@ -105,7 +122,7 @@ export default function PostPage() {
     }
 
     return (
-        <section className="max-w-3xl mx-auto p-4 ">
+        <section className="max-w-3xl mx-auto p-4 space-y-6">
             <div className="flex flex-col items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
                 <div className="text-sm text-gray-500 mb-4">
@@ -113,7 +130,26 @@ export default function PostPage() {
                 </div>
                 <div className="mb-4">{post.body}</div>
             </div>
-            <div className="flex flex-col items-center mt-8 border pt-4 p-8">
+
+            <div className="border-t pt-6">
+                <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+                <ReviewList key={refreshReviews} postId={id} onReviewEdit={handleReviewEdit} />
+            </div>
+
+            <div className="border-t pt-6">
+                <h2 className="text-xl font-semibold mb-4">
+                    {editingReview ? 'Edit Review' : 'Leave a Review'}
+                </h2>
+                <ReviewForm 
+                    postId={id} 
+                    onReviewCreated={handleReviewCreated}
+                    onReviewUpdated={handleReviewCreated}
+                    onCancel={handleCancelEdit}
+                    existingReview={editingReview || undefined}
+                />
+            </div>
+
+            <div className="flex flex-col items-center mt-8 border-t pt-6">
                 <h3 className="py-4">Comments</h3>
                 <div className="flex flex-col justify-between min-w-3/4">
                     <textarea placeholder="Add comment here" className="p-5" onChange={(e) => handleTextChange(e)} />
