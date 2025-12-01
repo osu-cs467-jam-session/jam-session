@@ -149,21 +149,6 @@ export default function PostPage() {
                     existingReview={editingReview || undefined}
                 />
             </div>
-
-            <div className="flex flex-col items-center mt-8 border-t pt-6">
-                <h3 className="py-4">Comments</h3>
-                <div className="flex flex-col justify-between min-w-3/4">
-                    <textarea placeholder="Add comment here" className="p-5" onChange={(e) => handleTextChange(e)} />
-                    <button className="text-xs p-1 self-end border-3 m-2 rounded-xs bg-gray-400 hover:text-blue-500" onClick={() => handleAddComment()}>Submit</button>
-                </div>
-                {
-                    comments.length > 0 ? (
-                        comments.map((c) => (
-                            <Comment comment={c} key={String(c._id)} />
-                        ))) : (
-                        "No comments yet.")
-                }
-            </div>
         </section>
     );
 }
