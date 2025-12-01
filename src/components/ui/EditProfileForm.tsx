@@ -10,17 +10,17 @@ interface ProfileData {
 }
 
 interface EditProfileFormProps {
-  initialData: ProfileData;
+  initialData?: ProfileData;
   onUpdate?: (updated: ProfileData) => void;
 }
 
 export default function EditProfileForm({
-  initialData,
+  initialData = {},
   onUpdate,
 }: EditProfileFormProps) {
   const [form, setForm] = useState<ProfileData>({
     ...initialData,
-    instrumentsArray: initialData.instrumentsArray || [],
+    instrumentsArray: initialData?.instrumentsArray || [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +32,6 @@ export default function EditProfileForm({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Instrument-specific handlers
   const handleInstrumentChange = (index: number, value: string) => {
     const updated = [...(form.instrumentsArray || [])];
     updated[index] = value;
@@ -58,7 +57,7 @@ export default function EditProfileForm({
     setError(null);
 
     try {
-      const res = await fetch("/api/profile", {
+      const res = await fetch(`/api/profile/${form.username}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -70,11 +69,7 @@ export default function EditProfileForm({
       if (onUpdate) onUpdate(json.data);
       alert("Profile updated successfully!");
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Something went wrong");
-      }
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }

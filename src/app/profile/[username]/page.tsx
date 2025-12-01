@@ -1,11 +1,10 @@
 import ProfileCard from "@/components/ui/ProfileCard";
 
 interface ProfilePageProps {
-  params: Promise<{ username: string }>;
+  params: Promise<{ username: string }>; // params is a Promise
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  // unwrap the Promise
   const { username } = await params;
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
@@ -17,7 +16,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   if (!res.ok) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <p className="text-gray-600 text-lg">User not found</p>
+        <p>User not found</p>
       </div>
     );
   }

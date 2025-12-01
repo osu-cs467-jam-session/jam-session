@@ -6,7 +6,7 @@ export async function GET(
   _req: Request,
   context: { params: Promise<{ username: string }> }
 ) {
-  const { username } = await context.params; // unwrap here
+  const { username } = await context.params;
 
   try {
     await connectToDatabase();
@@ -20,7 +20,69 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: profile });
+    const safeProfile = JSON.parse(JSON.stringify(profile));
+    return NextResponse.json({ success: true, data: safeProfile });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  req: Request,
+  context: { params: Promise<{ username: string }> }
+) {
+  const { username } = await context.params;
+  const body = await req.json();
+
+  try {
+    await connectToDatabase();
+
+    const updated = await ProfileModel.findOneAndUpdate({ username }, body, {
+      new: true,
+      lean: true,
+    });
+
+    if (!updated) {
+      return NextResponse.json(
+        { success: false, error: "Profile not found" },
+        { status: 404 }
+      );
+    }
+
+    const safeUpdated = JSON.parse(JSON.stringify(updated));
+    return NextResponse.json({ success: true, data: safeUpdated });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  _req: Request,
+  context: { params: Promise<{ username: string }> }
+) {
+  const { username } = await context.params;
+
+  try {
+    await connectToDatabase();
+
+    const deleted = await ProfileModel.findOneAndDelete({ username });
+
+    if (!deleted) {
+      return NextResponse.json(
+        { success: false, error: "Profile not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, message: "Profile deleted" });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
