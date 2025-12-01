@@ -1,4 +1,4 @@
-import type { Post, CreatePostInput } from "@/types/post";
+import type { Post, CreatePostInput, Instrument, Genre, SkillLevel } from "@/types/post";
 import type { Review, CreateReviewInput } from "@/types/review";
 
 const API_BASE = "/api";
@@ -36,13 +36,27 @@ async function apiRequest<T>(
 }
 
 // posts API
-export async function fetchPosts(filters?: {
+export interface PostFilters {
   userId?: string;
   id?: string;
-}): Promise<Post[]> {
+  instruments?: Instrument[];
+  skill?: SkillLevel;
+  genres?: Genre[];
+  search?: string;
+}
+
+export async function fetchPosts(filters?: PostFilters): Promise<Post[]> {
   const params = new URLSearchParams();
   if (filters?.userId) params.append("userId", filters.userId);
   if (filters?.id) params.append("id", filters.id);
+  if (filters?.instruments) {
+    filters.instruments.forEach(inst => params.append("instrument", inst));
+  }
+  if (filters?.skill) params.append("skill", filters.skill);
+  if (filters?.genres) {
+    filters.genres.forEach(genre => params.append("genre", genre));
+  }
+  if (filters?.search) params.append("search", filters.search);
 
   const query = params.toString();
   return apiRequest<Post[]>(`/posts${query ? `?${query}` : ""}`);

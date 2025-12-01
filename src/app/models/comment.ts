@@ -4,7 +4,8 @@ import { convertStringIdToObjectId } from "./helper_functions";
 // Define Types
 export interface IComment {
     _id: mongoose.Types.ObjectId; // MongoDB ObjectId
-    userId?: mongoose.Types.ObjectId; // Reference to User's ObjectId
+    userClerkId?: string; // Clerk user ID (string)
+    userName?: string; // Optional username for easy display
     parentType?: "Post" | "AudioUpload"; // Type of the parent entity
     parentId: mongoose.Types.ObjectId; // Reference to the parent entity's ObjectId
     comment: string;
@@ -14,7 +15,8 @@ export interface IComment {
 // Comment schema
 const CommentSchema = new mongoose.Schema<IComment>(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        userClerkId: { type: String, required: false }, // Clerk ID (string)
+        userName: { type: String, required: false }, // Optional username
         parentType: { type: String, enum: ["Post", "AudioUpload"] },
         parentId: { type: mongoose.Schema.Types.ObjectId, required: true },
         comment: { type: String, required: true },
