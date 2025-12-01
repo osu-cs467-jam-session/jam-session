@@ -76,6 +76,7 @@ export default function PostPage() {
                 },
                 body: JSON.stringify({
                     parentId: id,
+                    userClerkId: userId || undefined, // Clerk ID (optional for anonymous)
                     comment: commentText,
                     date: new Date().toISOString(),
                 }),

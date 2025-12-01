@@ -13,6 +13,7 @@ import {
   updateComment,
   deleteComment,
 } from "@/app/models/comment";
+import Profile from "@/app/models/profile";
 
 /** GET: Fetch comments: all, by ID, or by parentId */
 export async function GET(request: Request) {
@@ -72,16 +73,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Validate required ids
-
-    // Removing userId as required field for testing purposes
-    /*
-    if (!body.userId || !mongoose.Types.ObjectId.isValid(body.userId)) {
-      return NextResponse.json(
-        { success: false, error: "Invalid or missing userId" },
-        { status: 400 }
-      );
-    } */
+    // validate parentId
     if (!body.parentId || !mongoose.Types.ObjectId.isValid(body.parentId)) {
       return NextResponse.json(
         { success: false, error: "Invalid or missing parentId" },
@@ -89,10 +81,28 @@ export async function POST(request: Request) {
       );
     }
 
+    // userClerkId is optional (for anonymous comments)
+    const userClerkId: string | undefined = body.userClerkId;
+
+    // try to get username from profile, fallback to body or undefined
+    let userName: string | undefined = body.userName;
+    if (userClerkId && !userName) {
+      try {
+        const profile = await Profile.findOne({ clerkUserId: userClerkId }).lean() as { username?: string; clerkUserId: string } | null;
+        if (profile?.username) {
+          userName = profile.username;
+        }
+      } catch (profileError) {
+        // if profile lookup fails, just continue without username
+        console.log("Could not fetch username from profile:", profileError);
+      }
+    }
+
     // Create comment
     const newComment = await createComment({
       _id: new mongoose.Types.ObjectId(),
-      userId: body.userId ? new mongoose.Types.ObjectId(body.userId) : undefined,
+      userClerkId: userClerkId,
+      userName: userName,
       parentType: body.parentType || "Post",
       parentId: new mongoose.Types.ObjectId(body.parentId),
       comment: body.comment,
