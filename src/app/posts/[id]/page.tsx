@@ -6,12 +6,18 @@ import type { IPost } from "@/types/post";
 import type { IComment } from "@/types/comment";
 import Comment from "@/components/Comment";
 
+import AudioPlayer from "@/components/AudioPlayer";       
+import { fetchAudioUpload } from "@/lib/api/client";       
+
 export default function PostPage() {
     const params = useParams();
     const id = params?.id as string | undefined;
     const [post, setPost] = useState<IPost | null>(null);
     const [comments, setComments] = useState<IComment[]>([]);
     const [commentText, setCommentText] = useState<string>("");
+    const [audioUrl, setAudioUrl] = useState<string | null>(null); 
+    const [loadingAudio, setLoadingAudio] = useState(false);      
+
     const { userId } = useAuth();
 
     useEffect(() => {
@@ -59,6 +65,40 @@ export default function PostPage() {
             mounted = false;
         };
     }, [id]);
+
+    useEffect(() => {
+        if (!post?.audioUploadId) return;  
+
+        const audioId = post.audioUploadId.toString(); 
+
+        let mounted = true;
+
+        async function loadAudio() {
+        setLoadingAudio(true);
+
+        try {
+            const audio = await fetchAudioUpload(audioId);
+            if (!mounted) return;
+
+            setAudioUrl(audio.url || null);
+        } catch (err) {
+            console.error("Error loading audio:", err);
+        } finally {
+            if (mounted) setLoadingAudio(false);
+        }
+        }
+
+        loadAudio();
+
+        return () => {
+        mounted = false;
+        };
+    }, [post?.audioUploadId]);
+    // ========================================================================
+    
+  
+  
+  
 
     async function handleAddComment() {
         if (!id) return;
@@ -111,6 +151,17 @@ export default function PostPage() {
                 <div className="text-sm text-gray-500 mb-4">
                     By {post.userName || post.userId} • {post.date ? (typeof post.date === 'string' ? new Date(post.date) : post.date).toLocaleDateString() : 'Unknown date'}
                 </div>
+
+                {loadingAudio && (
+                <p className="text-sm text-gray-500 mb-3">Loading audio…</p> 
+                )}
+
+                {!loadingAudio && audioUrl && (
+                <div className="mb-6">
+                    <AudioPlayer url={audioUrl} /> 
+                </div>
+                )}
+
                 <div className="mb-4">{post.body}</div>
             </div>
             <div className="flex flex-col items-center mt-8 border pt-4 p-8">

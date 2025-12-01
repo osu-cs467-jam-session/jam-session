@@ -40,19 +40,15 @@ export async function GET(request: Request) {
     }
 
     // Get by userId
-    if (userId) {
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return NextResponse.json(
-          { success: false, error: "Invalid userId format" },
-          { status: 400 }
-        );
-      }
+    // Get by userId (Clerk string)
+    if (userId !== null) {
       const uploads = await getAudioUploads();
       const userUploads = uploads.filter(
-        (u) => u.userId.toString() === userId.toString()
+        (u) => u.userId === userId  
       );
       return NextResponse.json({ success: true, data: userUploads });
     }
+
 
     // Get all uploads
     const uploads = await getAudioUploads();
@@ -71,20 +67,28 @@ export async function POST(request: Request) {
   await connectToDatabase();
   try {
     const body = await request.json();
-    if (!body.userId || !mongoose.Types.ObjectId.isValid(body.userId)) {
+    // Clerk userId is a string, NOT an ObjectId
+    if (!body.userId || typeof body.userId !== "string") {
       return NextResponse.json(
-        { success: false, error: "Invalid or missing userId" },
+        { success: false, error: "Invalid or missing userId (must be Clerk ID string)" },
         { status: 400 }
       );
     }
 
+
     const newUpload = await createAudioUpload({
       _id: new mongoose.Types.ObjectId(),
-      userId: new mongoose.Types.ObjectId(body.userId),
-      filename: body.filename,
+      userId: body.userId,  // Save Clerk ID as a string
+      filename: body.filename || body.filename || "audio",
       title: body.title,
       tags: body.tags || [],
       date: new Date(),
+
+      filePath: body.filePath,   
+      url: body.url,             
+      mimeType: body.mimeType,
+      originalName: body.originalName,
+      size: body.size,
     });
 
     return NextResponse.json({ success: true, data: newUpload }, { status: 201 });
