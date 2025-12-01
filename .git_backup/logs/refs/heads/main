@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 f396a51530e7134daec6d29bb744a701c28d5666 brennanpate <pateb@oregonstate.edu> 1764417664 -0800	commit (initial): Reinitialize repo and reconnect to GitHub
+f396a51530e7134daec6d29bb744a701c28d5666 9847e4d2c9b1ca42458b5ce33bfa529f775d3728 brennanpate <pateb@oregonstate.edu> 1764418406 -0800	rebase (finish): refs/heads/main onto 5dd1d8f2e87decbee693112cfcbb0b4373a23494
+9847e4d2c9b1ca42458b5ce33bfa529f775d3728 1cfc1122613c63d5f08302cb670a738422e63344 brennanpate <pateb@oregonstate.edu> 1764460265 -0800	commit (merge): Resolve merge conflicts in package.json
