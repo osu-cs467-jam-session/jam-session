@@ -1,9 +1,5 @@
-// import everything from React library
-import React from 'react'
-
 /*
 Represents loading state for profile page.
-Next.js uses this file when page is in loading state
 */
 function loading() {
   return (

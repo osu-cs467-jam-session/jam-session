@@ -26,7 +26,7 @@ export default function ProfileCard({
 
   const handleDelete = async () => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete your profile? This cannot be undone."
+      "Are you sure you want to delete your profile? This cannot be undone"
     );
     if (!confirmed) return;
 
@@ -37,7 +37,7 @@ export default function ProfileCard({
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Failed to delete profile.");
+        alert(data.error || "Failed to delete profile");
         return;
       }
 
@@ -45,7 +45,7 @@ export default function ProfileCard({
       router.push("/"); // redirect to home
     } catch (err) {
       console.error(err);
-      alert("An error occurred while deleting your profile.");
+      alert("An error occurred while deleting your profile");
     }
   };
 
@@ -60,7 +60,7 @@ export default function ProfileCard({
 
       <CardContent className="space-y-3 text-gray-800 text-sm">
         <div>
-          <span className="font-medium text-gray-700">Preferred Genre:</span>{" "}
+          <span className="font-medium text-gray-700">Preferred Genres:</span>{" "}
           {preferredGenre?.trim() || "N/A"}
         </div>
         <div>
@@ -68,7 +68,9 @@ export default function ProfileCard({
           {instrumentsArray.length ? instrumentsArray.join(", ") : "N/A"}
         </div>
         <div>
-          <span className="font-medium text-gray-700">Contact:</span>{" "}
+          <span className="font-medium text-gray-700">
+            Contact Information:
+          </span>{" "}
           {contact?.trim() || "N/A"}
         </div>
 
@@ -76,13 +78,13 @@ export default function ProfileCard({
           <div className="flex flex-col space-y-2 mt-4">
             <button
               onClick={() => router.push("/profile/edit")}
-              className="w-full bg-blue-500 text-white p-2 rounded"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded transition-colors cursor-pointer"
             >
               Edit Profile
             </button>
             <button
               onClick={handleDelete}
-              className="w-full bg-red-500 text-white p-2 rounded"
+              className="w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded transition-colors cursor-pointer"
             >
               Delete Profile
             </button>

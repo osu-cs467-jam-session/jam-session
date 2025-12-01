@@ -4,7 +4,12 @@ interface ProfilePageProps {
   params: { username: string }; // dynamic route parameter
 }
 
-// profile page for a specific username
+/*
+ * Profile page for specific username
+ * - Fetches user profile from /api/profile/[username]
+ * - Displays "User not found" if the profile doesn't exist
+ * - Renders ProfileCard with user data
+ */
 export default async function ProfilePage({ params }: ProfilePageProps) {
   // await the params object to extract the username
   const { username } = await params;
@@ -45,6 +50,4 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       />
     </div>
   );
-
-  
 }
