@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/app/lib/database";
 import ProfileModel from "@/app/models/profile";
 
+// keep params as a Promise here to match this project's RouteHandlerConfig typing
 export async function GET(
   _req: Request,
-  context: { params: { username: string } }
+  context: { params: Promise<{ username: string }> }
 ) {
-  const { username } = context.params;
+  const { username } = await context.params;
 
   try {
     await connectToDatabase();
