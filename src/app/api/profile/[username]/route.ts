@@ -4,9 +4,9 @@ import ProfileModel from "@/app/models/profile";
 
 export async function GET(
   _req: Request,
-  context: { params: Promise<{ username: string }> }
+  context: { params: { username: string } }
 ) {
-  const { username } = await context.params; // unwrap here
+  const { username } = context.params;
 
   try {
     await connectToDatabase();

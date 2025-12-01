@@ -1,16 +1,14 @@
 import ProfileCard from "@/components/ui/ProfileCard";
 
 interface ProfilePageProps {
-  params: Promise<{ username: string }>;
+  params: { username: string };
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  // unwrap the Promise
-  const { username } = await params;
+  const { username } = params;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-  const res = await fetch(`${baseUrl}/api/profile/${username}`, {
+  // use relative URL so it works both locally and on vercel
+  const res = await fetch(`/api/profile/${encodeURIComponent(username)}`, {
     cache: "no-store",
   });
 
