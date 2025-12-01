@@ -2,16 +2,17 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/app/lib/database";
 import ProfileModel from "@/app/models/profile";
 
-export async function GET(
-  _req: Request,
-  context: { params: Promise<{ username: string }> }
-) {
-  const { username } = await context.params; // unwrap here
+interface Params {
+  clerkUserId: string;
+}
+
+export async function GET(_req: Request, { params }: { params: Params }) {
+  const { clerkUserId } = params;
 
   try {
     await connectToDatabase();
 
-    const profile = await ProfileModel.findOne({ username }).lean();
+    const profile = await ProfileModel.findOne({ clerkUserId }).lean();
 
     if (!profile) {
       return NextResponse.json(

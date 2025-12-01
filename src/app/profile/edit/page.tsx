@@ -1,16 +1,26 @@
+import { auth } from "@clerk/nextjs/server"; // server-side auth
 import EditProfileForm from "@/components/ui/EditProfileForm";
 
 export default async function EditProfilePage() {
-  // fetch current user's profile
-  const res = await fetch(
-    `${
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-    }/api/profile`,
-    { cache: "no-store" }
-  );
-  const profile = await res.json();
+  // Get the current session (server-side)
+  const session = await auth();
 
-  if (!profile) return <p>Profile not found</p>;
+  if (!session?.userId) {
+    return <p>Please log in to edit your profile.</p>;
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+  // Fetch profile by Clerk userId
+  const res = await fetch(`${baseUrl}/api/profile/${session.userId}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    return <p>Profile not found</p>;
+  }
+
+  const { data: profile } = await res.json();
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
