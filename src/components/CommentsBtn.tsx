@@ -12,7 +12,8 @@ export default function CommentsBtn({ parentId }: CommentsProps) {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/comments?parentId=" + parentId)
+    // use reviews api for now since reviews are the visible feedback on posts
+    fetch("/api/reviews?postId=" + parentId)
       .then((res) => {
         if (!res.ok) throw new Error("API response was not ok");
         return res.json();
