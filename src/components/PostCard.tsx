@@ -4,6 +4,11 @@ import Link from 'next/link'
 import type { Post } from '@/types/post'
 import { getTagsByType } from '@/types/post'
 import CommentsBtn from './CommentsBtn'
+import { useEffect, useState } from 'react'; 
+import { fetchAudioUpload } from '@/lib/api/client'; 
+import AudioPlayer from './AudioPlayer'; 
+import type { AudioUpload } from "@/lib/api/client";
+
 
 type PostCardProps = {
   post: Post
@@ -36,6 +41,26 @@ export default function PostCard({ post }: PostCardProps) {
     ? post.body.substring(0, 200) + '...'
     : post.body || ''
 
+  const [audioData, setAudioData] = useState<AudioUpload | null>(null); 
+  const [audioLoading, setAudioLoading] = useState(false); 
+  const [audioError, setAudioError] = useState<string | null>(null); 
+
+  useEffect(() => {
+    if (!post.audioUploadId) return; 
+    setAudioLoading(true); 
+
+    fetchAudioUpload(post.audioUploadId.toString()) 
+      .then((data) => {
+        setAudioData(data); 
+      })
+      .catch((err) => {
+        setAudioError(err instanceof Error ? err.message : "Failed to load audio"); 
+      })
+      .finally(() => {
+        setAudioLoading(false); 
+      });
+  }, [post.audioUploadId]); 
+
   return (
     <Link href={`/posts/${post._id}`} className="block">
       <article className="border rounded-lg p-6 bg-background hover:shadow-md transition-shadow">
@@ -65,7 +90,27 @@ export default function PostCard({ post }: PostCardProps) {
           {preview}
         </p>
 
-        {/* tags */}
+        {post.audioUploadId && (
+          <div className="my-3">
+
+            {audioLoading && (
+              <p className="text-sm text-blue-600">Loading audio...</p>
+            )}
+
+            {audioError && (
+              <p className="text-sm text-red-600">{audioError}</p>
+            )}
+
+            {audioData?.url && (
+              <AudioPlayer
+                url={audioData.url}     
+                title="Audio Preview"    
+              />
+            )}
+          </div>
+        )}
+
+        {/* Tags */}
         {(skillTags.length > 0 || instrumentTags.length > 0 || genreTags.length > 0) && (
           <div className="flex flex-wrap gap-2 mb-3">
             {skillTags.map(skill => (
@@ -98,11 +143,13 @@ export default function PostCard({ post }: PostCardProps) {
         {/* footer */}
         <div className="flex items-center justify-between text-sm text-gray-500">
           <span className="hover:text-blue-600">Read more →</span>
+ 
           {post.audioUploadId && (
-            <span className="flex items-center gap-1">
-              Audio attached
+            <span className="flex items-center gap-1 text-blue-600 font-medium">
+              🎵 Audio attached
             </span>
           )}
+
           <CommentsBtn parentId={post._id} />
         </div>
       </article>

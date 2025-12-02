@@ -1,6 +1,29 @@
 import type { Post, CreatePostInput, Instrument, Genre, SkillLevel } from "@/types/post";
 import type { Review, CreateReviewInput } from "@/types/review";
 
+export interface AudioUploadResponse { 
+  filePath: string; 
+  url: string;      
+  mimeType: string; 
+  userId: string;   
+  originalName: string; 
+  size: number;     
+}
+
+export interface AudioUpload {
+  _id: string;
+  userId: string;
+  filename: string;
+  title: string;
+  date?: string;
+  tags?: string[];
+  filePath?: string;
+  url?: string;
+}
+
+// =======================================================
+
+
 const API_BASE = "/api";
 
 interface ApiResponse<T> {
@@ -91,6 +114,33 @@ export async function deletePost(id: string): Promise<Post> {
   return apiRequest<Post>(`/posts?id=${id}`, {
     method: "DELETE",
   });
+}
+
+export async function uploadAudioFile(
+  file: File,
+  userId: string
+): Promise<AudioUploadResponse> { 
+
+  const formData = new FormData(); 
+  formData.append("file", file); 
+  formData.append("userId", userId); 
+
+  const response = await fetch("/api/audio_uploads/upload", { 
+    method: "POST", 
+    body: formData, 
+  }); 
+
+  const json = await response.json(); 
+
+  if (!response.ok || !json.success) { 
+    throw new Error(json.error || "Audio upload failed"); 
+  } 
+
+  return json.data as AudioUploadResponse; 
+} 
+
+export async function fetchAudioUpload(id: string): Promise<AudioUpload> {  
+  return apiRequest<AudioUpload>(`/audio_uploads?id=${id}`);               
 }
 
 // reviews API

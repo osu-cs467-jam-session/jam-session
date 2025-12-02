@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import type { CreatePostInput, SkillLevel, Instrument, Genre } from '@/types/post'
 import { createTag } from '@/types/post'
-import { createPost } from '@/lib/api/client'
+import { createPost, uploadAudioFile } from '@/lib/api/client' 
 
 type PostFormProps = {
   onPostCreated?: () => void // Callback after successful post creation
@@ -32,6 +32,11 @@ export default function PostForm({
   const [albumArtUrl, setAlbumArtUrl] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [audioFile, setAudioFile] = useState<File | null>(null) 
+  const [audioUploadId, setAudioUploadId] = useState<string | null>(null) 
+  const [uploadProgress, setUploadProgress] = useState<number>(0) 
+  const [uploadError, setUploadError] = useState<string | null>(null) 
+  // ===============================================================
 
   const remaining = maxLength - body.length
   const isValid = title.trim().length > 0 && body.trim().length > 0 && body.length <= maxLength
@@ -66,12 +71,57 @@ export default function PostForm({
       selectedInstruments.forEach(inst => tags.push(createTag("instrument", inst)))
       selectedGenres.forEach(genre => tags.push(createTag("genre", genre)))
 
+      let uploadedAudioId: string | null = null; 
+
+      if (audioFile) {
+        try {
+          // Optional: show some “starting” progress
+          setUploadProgress(10); 
+
+          // 1) Upload file to Vercel Blob
+          const uploadResult = await uploadAudioFile(audioFile, user.id); 
+
+          setUploadProgress(60); 
+
+          // 2) Create DB record in /api/audio_uploads
+          const dbRes = await fetch("/api/audio_uploads", { 
+            method: "POST", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ 
+              userId: user.id,
+              filename: uploadResult.originalName,
+              title: title.trim(),
+              filePath: uploadResult.filePath,
+              url: uploadResult.url,
+            }),
+          });
+
+          const dbJson = await dbRes.json(); 
+          if (!dbRes.ok || !dbJson.success) { 
+            throw new Error(dbJson.error || "Failed to register uploaded audio"); 
+          }
+
+          uploadedAudioId = dbJson.data._id as string; 
+          setAudioUploadId(uploadedAudioId); 
+          setUploadProgress(100); 
+         } catch (err) {
+          console.error("Audio upload error:", err);
+          const message = err instanceof Error ? err.message : "Audio upload failed";
+          setUploadError(message);
+          setIsSubmitting(false);
+          return;
+        }
+        
+      }
+
+
       const postData: CreatePostInput = {
         userId: user.id, // Clerk user ID
         title: title.trim(),
         body: body.trim(),
         tags,
         albumArtUrl: albumArtUrl.trim() || undefined,
+        audioUploadId: uploadedAudioId || undefined, 
       }
 
       await createPost(postData)
@@ -83,6 +133,12 @@ export default function PostForm({
       setSelectedInstruments([])
       setSelectedGenres([])
       setAlbumArtUrl('')
+
+      // ======== Reset PR5 audio fields ========
+      setAudioFile(null) 
+      setAudioUploadId(null) 
+      setUploadProgress(0) 
+      setUploadError(null) 
 
       // Notify parent component
       onPostCreated?.()
@@ -223,6 +279,33 @@ export default function PostForm({
             placeholder="https://example.com/album-art.jpg"
             className="w-full rounded-md border p-3 outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
           />
+        </div>
+
+        <div className="mt-4"> 
+          <label className="block text-sm font-medium mb-1">Audio File (Optional)</label> 
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null
+              setAudioFile(file)
+              setUploadError(null)
+              setUploadProgress(0)
+            }}
+            className="w-full rounded border p-2 bg-transparent"
+          /> 
+
+          {audioFile && (
+            <p className="text-sm text-gray-600 mt-1">Selected: {audioFile.name}</p>
+          )} 
+
+          {uploadProgress > 0 && uploadProgress < 100 && (
+            <p className="text-xs text-blue-600 mt-1">Uploading: {uploadProgress}%...</p>
+          )} 
+
+          {uploadError && (
+            <p className="text-xs text-red-600 mt-1">{uploadError}</p>
+          )} 
         </div>
 
         {/* Submit Button */}
