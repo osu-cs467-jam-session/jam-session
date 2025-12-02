@@ -10,12 +10,18 @@ import {
 } from "@/app/models/post";
 import Profile from "@/app/models/profile";
 
-// GET: fetch posts (all, by id, or by userId)
+// GET: fetch posts (all, by id, by userId, or filtered)
 export async function GET(request: Request) {
   await connectToDatabase();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const userId = searchParams.get("userId");
+  
+  // filter params
+  const instruments = searchParams.getAll("instrument");
+  const skill = searchParams.get("skill");
+  const genres = searchParams.getAll("genre");
+  const search = searchParams.get("search");
 
   try {
     // Get post by id
@@ -35,17 +41,64 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data: post });
     }
 
-    // Get posts by userId
+    // Get all posts first
+    let posts = await getPosts();
+
+    // Filter by userId if provided
     if (userId) {
-      const posts = await getPosts();
-      const userPosts = posts.filter(
+      posts = posts.filter(
         (p) => p.userId.toString() === userId.toString()
       );
-      return NextResponse.json({ success: true, data: userPosts });
     }
 
-    // Get all posts
-    const posts = await getPosts();
+    // Apply filters
+    if (instruments.length > 0 || skill || genres.length > 0 || search) {
+      posts = posts.filter((post) => {
+        const tags = post.tags || [];
+        
+        // filter by instruments (OR logic - any match)
+        if (instruments.length > 0) {
+          const hasInstrument = instruments.some(inst => {
+            const tagToFind = `instrument:${inst}`;
+            return tags.some(tag => 
+              tag.toLowerCase() === tagToFind.toLowerCase()
+            );
+          });
+          if (!hasInstrument) return false;
+        }
+
+        // filter by skill (single selection)
+        if (skill) {
+          const tagToFind = `skill:${skill}`;
+          const hasSkill = tags.some(tag => 
+            tag.toLowerCase() === tagToFind.toLowerCase()
+          );
+          if (!hasSkill) return false;
+        }
+
+        // filter by genres (OR logic - any match)
+        if (genres.length > 0) {
+          const hasGenre = genres.some(genre => {
+            const tagToFind = `genre:${genre}`;
+            return tags.some(tag => 
+              tag.toLowerCase() === tagToFind.toLowerCase()
+            );
+          });
+          if (!hasGenre) return false;
+        }
+
+        // text search in title and body (case-insensitive)
+        if (search) {
+          const searchLower = search.toLowerCase();
+          const titleMatch = post.title.toLowerCase().includes(searchLower);
+          const bodyMatch = post.body.toLowerCase().includes(searchLower);
+          if (!titleMatch && !bodyMatch) return false;
+        }
+
+        return true;
+      });
+    }
+
     return NextResponse.json({ success: true, data: posts });
   } catch (error) {
     console.error("GET /api/posts error:", error);

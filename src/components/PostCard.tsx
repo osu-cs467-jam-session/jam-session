@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import type { Post } from '@/types/post'
 import { getTagsByType } from '@/types/post'
-import Image from 'next/image'
 import CommentsBtn from './CommentsBtn'
 import { useEffect, useState } from 'react'; 
 import { fetchAudioUpload } from '@/lib/api/client'; 
@@ -37,7 +36,7 @@ export default function PostCard({ post }: PostCardProps) {
     return date.toISOString()
   }
 
-  // Truncate body for preview
+  // truncate body for preview
   const preview = post.body && post.body.length > 200
     ? post.body.substring(0, 200) + '...'
     : post.body || ''
@@ -65,7 +64,7 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <Link href={`/posts/${post._id}`} className="block">
       <article className="border rounded-lg p-6 bg-background hover:shadow-md transition-shadow">
-        {/* Header */}
+        {/* header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <h2 className="text-xl font-semibold mb-1">{post.title}</h2>
@@ -77,18 +76,16 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
           {post.albumArtUrl && (
             <div className="ml-4 flex-shrink-0">
-              <Image
+              <img
                 src={post.albumArtUrl}
                 alt="Album art"
-                width={80}
-                height={80}
-                className="rounded-lg object-cover"
+                className="h-20 w-20 rounded-lg object-cover"
               />
             </div>
           )}
         </div>
 
-        {/* Body Preview */}
+        {/* body preview */}
         <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">
           {preview}
         </p>
@@ -143,7 +140,7 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         )}
 
-        {/* Footer */}
+        {/* footer */}
         <div className="flex items-center justify-between text-sm text-gray-500">
           <span className="hover:text-blue-600">Read more →</span>
  

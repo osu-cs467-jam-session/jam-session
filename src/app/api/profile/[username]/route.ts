@@ -1,10 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import ProfileModel from "@/app/models/profile";
+import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/app/lib/database";
+import ProfileModel from "@/app/models/profile";
 
-/**
- * GET
- */
+// keep params as a Promise here to match this project's RouteHandlerConfig typing
 export async function GET(
   _req: Request,
   context: { params: Promise<{ username: string }> }
@@ -23,9 +21,10 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: profile });
+    const safeProfile = JSON.parse(JSON.stringify(profile));
+    return NextResponse.json({ success: true, data: safeProfile });
   } catch (error) {
-    console.error(`GET /api/profile/${username} error:`, error);
+    console.error(error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }
@@ -33,11 +32,41 @@ export async function GET(
   }
 }
 
-/**
- * DELETE
- */
+export async function PATCH(
+  req: Request,
+  context: { params: Promise<{ username: string }> }
+) {
+  const { username } = await context.params;
+  const body = await req.json();
+
+  try {
+    await connectToDatabase();
+
+    const updated = await ProfileModel.findOneAndUpdate({ username }, body, {
+      new: true,
+      lean: true,
+    });
+
+    if (!updated) {
+      return NextResponse.json(
+        { success: false, error: "Profile not found" },
+        { status: 404 }
+      );
+    }
+
+    const safeUpdated = JSON.parse(JSON.stringify(updated));
+    return NextResponse.json({ success: true, data: safeUpdated });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
-  _req: NextRequest,
+  _req: Request,
   context: { params: Promise<{ username: string }> }
 ) {
   const { username } = await context.params;
@@ -45,20 +74,20 @@ export async function DELETE(
   try {
     await connectToDatabase();
 
-    const deletedProfile = await ProfileModel.findOneAndDelete({ username });
+    const deleted = await ProfileModel.findOneAndDelete({ username });
 
-    if (!deletedProfile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    if (!deleted) {
+      return NextResponse.json(
+        { success: false, error: "Profile not found" },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json(
-      { message: "Profile deleted successfully" },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, message: "Profile deleted" });
   } catch (error) {
-    console.error(`DELETE /api/profile/${username} error:`, error);
+    console.error(error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }

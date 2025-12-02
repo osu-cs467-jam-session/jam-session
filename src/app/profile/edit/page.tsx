@@ -1,24 +1,24 @@
-import React from "react";
+import { auth } from "@clerk/nextjs/server";
 import EditProfileForm from "@/components/ui/EditProfileForm";
+import { connectToDatabase } from "@/app/lib/database";
+import ProfileModel from "@/app/models/profile";
 
 export default async function EditProfilePage() {
-  // fetch current user's profile
-  const res = await fetch(
-    `${
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-    }/api/profile`,
-    { cache: "no-store" }
-  );
-  const profile = await res.json();
+  const session = await auth();
+  if (!session?.userId) {
+    return <p>Please log in to edit your profile.</p>;
+  }
 
-  if (!profile) return <p>Profile not found</p>;
+  await connectToDatabase();
+  const profile = await ProfileModel.findOne({
+    clerkUserId: session.userId,
+  }).lean();
 
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4">Edit Your Profile</h1>
-        <EditProfileForm initialData={profile} />
-      </div>
-    </div>
-  );
+  if (!profile) {
+    return <p>Profile not found</p>;
+  }
+
+  const safeProfile = JSON.parse(JSON.stringify(profile));
+
+  return <EditProfileForm initialData={safeProfile} />;
 }

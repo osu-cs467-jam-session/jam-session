@@ -1,28 +1,22 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document, model } from "mongoose";
 
-export interface IProfile {
-  clerkUserId: string; // link to Clerk user (required)
-  username?: string; // optional display username
+export interface IProfile extends Document {
+  clerkUserId: string;
+  username: string;
   instrumentsArray?: string[];
-  preferredGenre?: string;
   location?: string;
+  preferredGenre?: string;
   contact?: string;
 }
 
-const ProfileSchema = new mongoose.Schema<IProfile>(
-  {
-    clerkUserId: { type: String, required: true, unique: true }, // required link
-    username: { type: String },
-    instrumentsArray: { type: [String], default: [] },
-    preferredGenre: { type: String },
-    location: { type: String },
-    contact: { type: String },
-  },
-  { timestamps: true }
-);
+const ProfileSchema = new Schema<IProfile>({
+  clerkUserId: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true },
+  instrumentsArray: { type: [String], default: [] },
+  location: String,
+  preferredGenre: String,
+  contact: String,
+});
 
-// prevent model overwrite on hot reload
-const Profile =
-  mongoose.models.Profile || mongoose.model<IProfile>("Profile", ProfileSchema);
-
-export default Profile;
+export default mongoose.models.Profile ||
+  model<IProfile>("Profile", ProfileSchema);
