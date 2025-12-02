@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 interface Profile {
-  clerkUserId: string; // unique ID from Clerk
-  username?: string; // optional username
-  preferredGenre?: string; // optional preferred genre
+  clerkUserId: string;
+  username?: string;
+  preferredGenre?: string;
 }
 
 export default function ProfileListPage() {
@@ -14,17 +14,15 @@ export default function ProfileListPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // fetch profiles from API with optional search query
   const fetchProfiles = async (query = "") => {
     setLoading(true);
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-        }/api/all_profiles?search=${encodeURIComponent(query)}`,
-        { cache: "no-store" }
+        `/api/all_profiles?search=${encodeURIComponent(query)}`,
+        {
+          cache: "no-store",
+        }
       );
-
       const json = await res.json();
       setProfiles(json.data || []);
     } catch (err) {
@@ -35,17 +33,14 @@ export default function ProfileListPage() {
     }
   };
 
-  // fetch all profiles
   useEffect(() => {
     fetchProfiles();
   }, []);
 
-  // debounce search input to avoid firing request on every keystroke
   useEffect(() => {
     const timeout = setTimeout(() => {
       fetchProfiles(search);
     }, 300);
-
     return () => clearTimeout(timeout);
   }, [search]);
 

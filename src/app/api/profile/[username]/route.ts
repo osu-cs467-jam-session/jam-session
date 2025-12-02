@@ -1,15 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import ProfileModel from "@/app/models/profile";
+import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/app/lib/database";
+import ProfileModel from "@/app/models/profile";
 
-/**
- * GET /api/profile/[username]
- * Fetch a user profile by username
- * Returns:
- *   - 200 + profile data if found
- *   - 404 if profile not found
- *   - 500 on internal server error
- */
+// keep params as a Promise here to match this project's RouteHandlerConfig typing
 export async function GET(
   _req: Request,
   context: { params: Promise<{ username: string }> }
@@ -17,13 +10,10 @@ export async function GET(
   const { username } = await context.params;
 
   try {
-    // Connect to MongoDB
     await connectToDatabase();
 
-    // Find profile by username
     const profile = await ProfileModel.findOne({ username }).lean();
 
-    // Profile not found
     if (!profile) {
       return NextResponse.json(
         { success: false, error: "Profile not found" },
@@ -31,10 +21,10 @@ export async function GET(
       );
     }
 
-    // Return profile data
-    return NextResponse.json({ success: true, data: profile });
+    const safeProfile = JSON.parse(JSON.stringify(profile));
+    return NextResponse.json({ success: true, data: safeProfile });
   } catch (error) {
-    console.error(`GET /api/profile/${username} error:`, error);
+    console.error(error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }
@@ -42,40 +32,62 @@ export async function GET(
   }
 }
 
-/**
- * DELETE /api/profile/[username]
- * Delete a user profile by username.
- * Returns:
- *   - 200 if deletion successful
- *   - 404 if profile not found
- *   - 500 on internal server error
- */
+export async function PATCH(
+  req: Request,
+  context: { params: Promise<{ username: string }> }
+) {
+  const { username } = await context.params;
+  const body = await req.json();
+
+  try {
+    await connectToDatabase();
+
+    const updated = await ProfileModel.findOneAndUpdate({ username }, body, {
+      new: true,
+      lean: true,
+    });
+
+    if (!updated) {
+      return NextResponse.json(
+        { success: false, error: "Profile not found" },
+        { status: 404 }
+      );
+    }
+
+    const safeUpdated = JSON.parse(JSON.stringify(updated));
+    return NextResponse.json({ success: true, data: safeUpdated });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
-  _req: NextRequest,
+  _req: Request,
   context: { params: Promise<{ username: string }> }
 ) {
   const { username } = await context.params;
 
   try {
-    // Connect to MongoDB
     await connectToDatabase();
 
-    const deletedProfile = await ProfileModel.findOneAndDelete({ username });
+    const deleted = await ProfileModel.findOneAndDelete({ username });
 
-    // Profile not found
-    if (!deletedProfile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    if (!deleted) {
+      return NextResponse.json(
+        { success: false, error: "Profile not found" },
+        { status: 404 }
+      );
     }
 
-    // Return success message
-    return NextResponse.json(
-      { message: "Profile deleted successfully" },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, message: "Profile deleted" });
   } catch (error) {
-    console.error(`DELETE /api/profile/${username} error:`, error);
+    console.error(error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }

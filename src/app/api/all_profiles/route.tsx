@@ -20,7 +20,6 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim() || "";
 
-    // If a search term exists, search both username and preferredGenre
     const query = search
       ? {
           $or: [
@@ -30,7 +29,6 @@ export async function GET(request: Request) {
         }
       : {};
 
-    // Fetch matching profiles and only select safe fields
     const profiles = await Profile.find(query, {
       clerkUserId: 1,
       username: 1,
@@ -50,5 +48,3 @@ export async function GET(request: Request) {
     );
   }
 }
-
-// test
